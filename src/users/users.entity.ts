@@ -1,43 +1,46 @@
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class User {
-    @PrimaryGeneratedColumn()
-    id: number;
-    
-    @Column({ length: 500 })
-    name: string;
-    
-    @Column("text")
-    email: string;
-    
-    @Column("text")
-    password: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column("text")
-    role: string;
+  @Column({ length: 500 })
+  name: string;
 
-    @Column("text")
-    address: string;
+  @Column()
+  email: string;
 
-    @Column("text")
-    phone_primary: string;
+  @Column()
+  password: string;
 
-    @Column("text")
-    phone_secondary: string;
+  @Column()
+  role: string;
 
-    @Column("text")
-    position: string;
+  @Column()
+  address: string;
 
-    @Column("text")
-    verification_type: string;
+  @Column()
+  phone_primary: string;
 
-    @Column("text")
-    verification_id: string;
+  @Column()
+  phone_secondary: string;
 
-    @Column()
-    base_salary: number;
+  @Column()
+  position: string;
 
-    @Column()
-    monthly_salary: number;
-    }
+  @Column()
+  verification_type: string;
+
+  @Column()
+  verification_id: string;
+
+  @Column()
+  base_salary: number;
+
+  @Column()
+  monthly_salary: number;
+
+  @Column({ nullable: true })
+  created_at: Date;
+}
