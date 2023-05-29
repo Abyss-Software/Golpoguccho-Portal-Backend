@@ -12,7 +12,7 @@ import { User } from 'src/users/users.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from 'src/utils/constants/jwt';
+import { jwtConfig } from 'src/utils/configs/jwt.config';
 import { CreateUserDto } from 'src/users/dtos/create-user.dto';
 import { LoginResponseDto } from './dto/response/login-response.dto';
 
@@ -28,13 +28,13 @@ export class AuthService {
     const [access_token, refresh_token] = await Promise.all([
       this.jwtService.signAsync(
         { sub: userId, email, role },
-        { secret: jwtConstants.secret, expiresIn: jwtConstants.expires_in },
+        { secret: jwtConfig.secret, expiresIn: jwtConfig.expires_in },
       ),
       this.jwtService.signAsync(
         { sub: userId, email, role },
         {
-          secret: jwtConstants.REFRESH_TOKEN_SECRET,
-          expiresIn: jwtConstants.REFRESH_TOKEN_EXPIRATION,
+          secret: jwtConfig.REFRESH_TOKEN_SECRET,
+          expiresIn: jwtConfig.REFRESH_TOKEN_EXPIRATION,
         },
       ),
     ]);

@@ -4,9 +4,8 @@ import { Category } from './categories.entity';
 import { Repository } from 'typeorm';
 import { Package } from './packages.entity';
 import { CreateCategoryDto } from './dto/request/create-category.dto';
-import { cloudinaryConfig } from 'src/utils/configs/cloudinary.config';
-
-const cloudinary = require('cloudinary').v2;
+import { CreatePackageDto } from './dto/request/create-package.dto';
+import { CloudinaryUpload } from 'src/utils/image-upload/coudinary-upload';
 
 @Injectable()
 export class PackagesService {
@@ -18,20 +17,19 @@ export class PackagesService {
   ) {}
 
   async createCategory(createCategoryDto: CreateCategoryDto) {
-    cloudinary.config(cloudinaryConfig);
-    const res = await cloudinary.uploader.upload(
-      'https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg',
-      { public_id: 'olympic_flag' },
+    const imageUpload = await CloudinaryUpload(
+      createCategoryDto.image,
+      'categories',
+      createCategoryDto.name,
     );
-    console.log(res);
     const category = this.categoryRepo.create({
-      name: createCategoryDto.name,
-      description: createCategoryDto.description,
-      image: res.secure_url,
-      status: 'active',
+      ...createCategoryDto,
+      image: imageUpload.secure_url,
       created_at: new Date(),
     });
     await this.categoryRepo.save(category);
     return category;
   }
+
+  async createPackage(createPackageDto: CreatePackageDto) {}
 }
