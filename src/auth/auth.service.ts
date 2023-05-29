@@ -4,9 +4,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { SignUpResponseDto } from './dto/response/signup-response.dto';
+
 import { UsersService } from 'src/users/users.service';
-import { LoginUserDto } from './dto/request/login-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/users.entity';
 import { Repository } from 'typeorm';
@@ -14,7 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConfig } from 'src/utils/configs/jwt.config';
 import { CreateUserDto } from 'src/users/dtos/create-user.dto';
-import { LoginResponseDto } from './dto/response/login-response.dto';
+import { successHandler } from 'src/utils/response.handler';
 
 @Injectable()
 export class AuthService {
@@ -51,7 +51,8 @@ export class AuthService {
       throw new BadRequestException('User with this email already exists');
     }
     const newUser: User = await this.usersService.createUser(signupUserDto);
-    const responseDto: SignUpResponseDto = {
+    return successHandler('User created successfully', {
+      id: newUser.id,
       name: newUser.name,
       email: newUser.email,
       role: newUser.role,
@@ -63,10 +64,7 @@ export class AuthService {
       base_salary: newUser.base_salary,
       monthly_salary: newUser.monthly_salary,
       created_at: newUser.created_at,
-    };
-
-    console.log(responseDto);
-    return responseDto;
+    });
   }
 
   async login(loginInfo: LoginUserDto) {
@@ -88,7 +86,7 @@ export class AuthService {
     );
     console.warn('dsfakj', userInfo);
 
-    const loginResponse: LoginResponseDto = {
+    return successHandler('Login successful', {
       access_token: tokens.access_token,
       refresh_token: tokens.refresh_token,
       user: {
@@ -97,9 +95,7 @@ export class AuthService {
         email: userInfo.email,
         role: userInfo.role,
       },
-    };
-    console.log('login res ', loginResponse);
-    return loginResponse;
+    });
   }
 
   async refreshTokens(res: any, req: any, token: string) {
@@ -125,7 +121,7 @@ export class AuthService {
         userInfo.email,
         userInfo.role,
       );
-      const loginResponse: LoginResponseDto = {
+      return successHandler('Login successful', {
         access_token: tokens.access_token,
         refresh_token: tokens.refresh_token,
         user: {
@@ -134,8 +130,7 @@ export class AuthService {
           email: userInfo.email,
           role: userInfo.role,
         },
-      };
-      return loginResponse;
+      });
     } catch (error) {
       return new BadRequestException(error);
     }

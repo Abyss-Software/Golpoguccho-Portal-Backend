@@ -16,7 +16,7 @@ export const created = (data: any) => {
   return responseBuilder(201, true, 'Success', data);
 };
 
-export const successHandler = (data: any, message: string) => {
+export const successHandler = (message: string, data: any) => {
   return responseBuilder(200, true, message || 'Success', data);
 };
 

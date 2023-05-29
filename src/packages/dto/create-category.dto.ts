@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
-import { status } from '../../../utils/constants/status';
+import { status } from '../../utils/constants/status';
 
 export class CreateCategoryDto {
   @ApiProperty({ example: 'Muslim Wedding' })

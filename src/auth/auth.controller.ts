@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LoginUserDto } from './dto/request/login-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from 'src/users/dtos/create-user.dto';
 import { JwtAuthGuard } from 'src/utils/auth/guards/jwt-auth.guard';
 import { UserRolesGuard } from 'src/utils/auth/guards/roles.guard';
@@ -34,9 +34,9 @@ export class AuthController {
     @Body() loginInfo: LoginUserDto,
     @Response({ passthrough: true }) res,
   ) {
-    const userInfo = await this.authService.login(loginInfo);
+    const result = await this.authService.login(loginInfo);
 
-    res.cookie('refreshToken', userInfo.refresh_token, {
+    res.cookie('refreshToken', result.body.refresh_token, {
       expires: new Date(new Date().setDate(new Date().getDate() + 7)),
       sameSite: 'none',
       httpOnly: true,
@@ -44,7 +44,7 @@ export class AuthController {
     });
     res.header('Access-Control-Allow-Origin', req.headers.origin);
 
-    return userInfo;
+    return result;
   }
 
   @Get('/refresh')

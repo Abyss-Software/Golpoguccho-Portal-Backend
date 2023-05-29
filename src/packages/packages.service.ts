@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './categories.entity';
 import { Repository } from 'typeorm';
 import { Package } from './packages.entity';
-import { CreateCategoryDto } from './dto/request/create-category.dto';
-import { CreatePackageDto } from './dto/request/create-package.dto';
+import { CreateCategoryDto } from './dto/create-category.dto';
+import { CreatePackageDto } from './dto/create-package.dto';
 import { CloudinaryUpload } from 'src/utils/image-upload/coudinary-upload';
 
 @Injectable()

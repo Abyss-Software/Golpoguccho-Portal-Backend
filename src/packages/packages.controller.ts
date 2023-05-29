@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { PackagesService } from './packages.service';
-import { CreateCategoryDto } from './dto/request/create-category.dto';
+import { CreateCategoryDto } from './dto/create-category.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Packages')

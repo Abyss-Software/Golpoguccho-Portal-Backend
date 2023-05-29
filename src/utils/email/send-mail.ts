@@ -33,8 +33,8 @@ export const sendMailTest = async (emailConfig: any) => {
       },
     });
     return successHandler(
-      {},
       'A password reset email sent to given email address',
+      {},
     );
   } catch (error) {
     return errorhandler(400, JSON.stringify(error.message));
