@@ -17,14 +17,17 @@ export class UserRolesGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const role = this.reflector.get<string>('roles', context.getHandler());
-    if (!role) {
+    console.log('user role guard');
+    const roles = this.reflector.get<string>('roles', context.getHandler());
+    if (!roles) {
       return true;
     }
     let result = false;
     const { user } = context.switchToHttp().getRequest();
     const [userInfo] = await this.usersService.findUserByEmail(user.email);
-    result = userInfo.role === role;
+    console.log(roles, userInfo.role);
+    result = roles.includes(userInfo.role);
+    console.log(result);
     return result;
   }
 }

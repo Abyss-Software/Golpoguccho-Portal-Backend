@@ -147,8 +147,7 @@ export class AuthService {
       res.clearCookie('refreshToken', {
         sameSite: 'none',
         httpOnly: true,
-        secure: true,
-        path: '/auth/refresh-token',
+        secure: false,
       });
       return 'Logged out!';
     } catch (err) {

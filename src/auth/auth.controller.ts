@@ -1,14 +1,28 @@
-import { Body, Controller, Get, Post, Request, Response } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  Response,
+  SetMetadata,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/request/login-user.dto';
 import { CreateUserDto } from 'src/users/dtos/create-user.dto';
+import { JwtAuthGuard } from 'src/utils/auth/guards/jwt-auth.guard';
+import { UserRolesGuard } from 'src/utils/auth/guards/roles.guard';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @UseGuards(JwtAuthGuard, UserRolesGuard)
+  @SetMetadata('roles', ['admin'])
+  @ApiBearerAuth()
   @Post('/signup')
   async signUp(@Body() signUpUserDto: CreateUserDto) {
     return await this.authService.signUp(signUpUserDto);

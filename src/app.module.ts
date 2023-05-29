@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { PackagesModule } from './packages/packages.module';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -11,7 +12,7 @@ import { AuthModule } from './auth/auth.module';
     database: 'db.sqlite',
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
     synchronize: true,
-  }), UsersModule, AuthModule],
+  }), UsersModule, AuthModule, PackagesModule],
   controllers: [AppController],
   providers: [AppService],
 })

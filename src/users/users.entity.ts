@@ -42,5 +42,8 @@ export class User {
   monthly_salary: number;
 
   @Column({ nullable: true })
+  status: string;
+
+  @Column({ nullable: true })
   created_at: Date;
 }
