@@ -1,10 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity } from '../utils/base.entity';
 
 @Entity()
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class User extends BaseEntity {
   @Column({ length: 500 })
   name: string;
 
@@ -43,7 +41,4 @@ export class User {
 
   @Column({ nullable: true })
   status: string;
-
-  @Column({ nullable: true })
-  created_at: Date;
 }

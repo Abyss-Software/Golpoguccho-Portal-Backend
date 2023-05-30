@@ -16,7 +16,6 @@ export class UsersService {
       const user = this.userRepo.create({
         ...createUserDto,
         password: encPassword,
-        created_at: new Date(),
       });
       await this.userRepo.save(user);
       return user;
@@ -26,7 +25,7 @@ export class UsersService {
     }
   }
 
-  async findUser(id: number) {
+  async findUser(id: string) {
     const user = await this.userRepo.findOneBy({ id: id });
     if (!user) return 'User not found';
     return user;
@@ -41,14 +40,14 @@ export class UsersService {
     return await this.userRepo.find();
   }
 
-  async updateUser(id: number, attributes: Partial<User>) {
+  async updateUser(id: string, attributes: Partial<User>) {
     const user = await this.userRepo.findOneBy({ id: id });
     if (!user) throw new Error('User not found');
     Object.assign(user, attributes);
     return await this.userRepo.save(user);
   }
 
-  async deleteUser(id: number) {
+  async deleteUser(id: string) {
     const user = await this.userRepo.findOneBy({ id: id });
     if (!user) throw new Error('User not found');
     return await this.userRepo.remove(user);

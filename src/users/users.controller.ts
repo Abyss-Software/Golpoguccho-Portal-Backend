@@ -23,7 +23,7 @@ export class UsersController {
 
   @Get('/:id')
   findUser(@Param('id') id: string) {
-    return this.usersService.findUser(parseInt(id));
+    return this.usersService.findUser(id);
   }
 
   @Get()
@@ -33,11 +33,11 @@ export class UsersController {
 
   @Patch('/:id')
   updateUser(@Param('id') id: string, @Body() attributes: UpdateUserDto) {
-    return this.usersService.updateUser(parseInt(id), attributes);
+    return this.usersService.updateUser(id, attributes);
   }
 
   @Delete('/:id')
   deleteUser(@Param('id') id: string) {
-    return this.usersService.deleteUser(parseInt(id));
+    return this.usersService.deleteUser(id);
   }
 }

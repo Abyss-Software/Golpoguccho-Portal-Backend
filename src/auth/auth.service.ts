@@ -24,7 +24,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async getTokens(userId: number, email: string, role: string) {
+  async getTokens(userId: string, email: string, role: string) {
     const [access_token, refresh_token] = await Promise.all([
       this.jwtService.signAsync(
         { sub: userId, email, role },
@@ -63,7 +63,6 @@ export class AuthService {
       verification_id: newUser.verification_id,
       base_salary: newUser.base_salary,
       monthly_salary: newUser.monthly_salary,
-      created_at: newUser.created_at,
     });
   }
 
