@@ -7,12 +7,17 @@ import { AuthModule } from './auth/auth.module';
 import { PackagesModule } from './packages/packages.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot({
-    type: 'sqlite',
-    database: 'db.sqlite',
-    entities: [__dirname + '/**/*.entity{.ts,.js}'],
-    synchronize: true,
-  }), UsersModule, AuthModule, PackagesModule],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: 'db.sqlite',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true,
+    }),
+    AuthModule,
+    UsersModule,
+    PackagesModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

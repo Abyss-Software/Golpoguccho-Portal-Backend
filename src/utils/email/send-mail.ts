@@ -1,7 +1,7 @@
 //used send in blue
 // @ts-ignore
 import * as Sib from 'sib-api-v3-sdk';
-import { errorhandler, successHandler } from './response.handler';
+import { errorhandler, successHandler } from '../response.handler';
 
 const client = Sib.ApiClient.instance;
 const apiKey = client.authentications['api-key'];
@@ -33,8 +33,8 @@ export const sendMailTest = async (emailConfig: any) => {
       },
     });
     return successHandler(
-      {},
       'A password reset email sent to given email address',
+      {},
     );
   } catch (error) {
     return errorhandler(400, JSON.stringify(error.message));

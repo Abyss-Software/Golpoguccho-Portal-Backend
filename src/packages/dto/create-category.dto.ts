@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
+import { status } from '../../utils/constants/status';
 
 export class CreateCategoryDto {
   @ApiProperty({ example: 'Muslim Wedding' })
@@ -15,12 +16,12 @@ export class CreateCategoryDto {
 
   @ApiProperty({
     example:
-      'https://res.cloudinary.com/dxkufsejm/image/upload/v1627668236/olympic_flag.jpg',
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAUAQMAAADWX60MAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAANQTFRFICEkL6uKCAAAAAxJREFUeJxjYKA9AAAAZAABhmQ8NQAAAABJRU5ErkJggg==',
   })
   @IsString()
   image: string;
 
-  @ApiProperty({ example: 'active' })
+  @ApiProperty({ example: status.active })
   @IsString()
   status: string;
 }

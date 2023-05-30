@@ -1,4 +1,4 @@
-export const jwtConstants = {
+export const jwtConfig = {
   secret: 'qwertasdfgzxcvb',
   expires_in: '24h',
   REFRESH_TOKEN_SECRET: 'poiuylkjhgmnbvc',
