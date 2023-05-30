@@ -39,7 +39,6 @@ export class PackagesService {
       const category = this.categoryRepo.create({
         ...createCategoryDto,
         image: imageUpload.secure_url,
-        created_at: new Date(),
       });
       await this.categoryRepo.save(category);
       return successHandler('Category created successfully', category);
@@ -69,7 +68,6 @@ export class PackagesService {
         ...createPackageDto,
         image: imageUpload.secure_url,
         category: category,
-        created_at: new Date(),
       });
       await this.packageRepo.save(packageData);
 
@@ -97,7 +95,7 @@ export class PackagesService {
     }
   }
 
-  async getCategoryById(id: number) {
+  async getCategoryById(id: string) {
     try {
       const categoryData = await this.categoryRepo.findOne({
         where: { id: id },
@@ -110,7 +108,7 @@ export class PackagesService {
     }
   }
 
-  async getPackageById(id: number) {
+  async getPackageById(id: string) {
     try {
       const packageData = await this.packageRepo.findOneBy({ id: id });
       if (!packageData) return notfound('Category not found');
@@ -120,7 +118,7 @@ export class PackagesService {
     }
   }
 
-  async updateCategory(id: number, attributes: UpdateCategoryDto) {
+  async updateCategory(id: string, attributes: UpdateCategoryDto) {
     try {
       const categoryData = await this.categoryRepo.findOneBy({ id: id });
       if (!categoryData) return notfound('Category not found');
@@ -133,7 +131,7 @@ export class PackagesService {
     }
   }
 
-  async updatePackage(id: number, attributes: Partial<UpdatePackageDto>) {
+  async updatePackage(id: string, attributes: Partial<UpdatePackageDto>) {
     try {
       const packageData = await this.packageRepo.findOneBy({ id: id });
       if (!packageData) return notfound('Package not found');
@@ -146,7 +144,7 @@ export class PackagesService {
     }
   }
 
-  async deleteCategory(id: number) {
+  async deleteCategory(id: string) {
     try {
       const categoryData = await this.categoryRepo.findOneBy({ id: id });
       if (!categoryData) return notfound('Category not found');
@@ -158,7 +156,7 @@ export class PackagesService {
     }
   }
 
-  async deletePackage(id: number) {
+  async deletePackage(id: string) {
     try {
       const packageData = await this.packageRepo.findOneBy({ id: id });
       if (!packageData) return notfound('Package not found');

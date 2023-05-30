@@ -1,20 +1,16 @@
 import { Category } from 'src/packages/categories.entity';
 import { Package } from 'src/packages/packages.entity';
+import { BaseEntity } from 'src/utils/base.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity()
-export class Event {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Event extends BaseEntity {
   @Column()
   booking_id: number;
 
@@ -38,9 +34,6 @@ export class Event {
 
   @Column()
   location: string;
-
-  @CreateDateColumn()
-  created_at: Date;
 
   @Column()
   physical_copy: boolean;

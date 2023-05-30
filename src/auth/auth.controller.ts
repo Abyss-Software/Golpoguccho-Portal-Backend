@@ -21,7 +21,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', ['admin'])
+  @SetMetadata('roles', ['admin', 'manager'])
   @ApiBearerAuth()
   @Post('/signup')
   async signUp(@Body() signUpUserDto: CreateUserDto) {
@@ -30,9 +30,9 @@ export class AuthController {
 
   @Post('/login')
   async login(
-    @Request() req,
+    @Request() req: any,
     @Body() loginInfo: LoginUserDto,
-    @Response({ passthrough: true }) res,
+    @Response({ passthrough: true }) res: any,
   ) {
     const result = await this.authService.login(loginInfo);
 
@@ -48,7 +48,10 @@ export class AuthController {
   }
 
   @Get('/refresh')
-  async refreshTokens(@Request() req, @Response({ passthrough: true }) res) {
+  async refreshTokens(
+    @Request() req: any,
+    @Response({ passthrough: true }) res: any,
+  ) {
     return await this.authService.refreshTokens(
       res,
       req,
@@ -57,7 +60,7 @@ export class AuthController {
   }
 
   @Get('/logout')
-  async logout(@Request() req, @Response({ passthrough: true }) res) {
+  async logout(@Request() req: any, @Response({ passthrough: true }) res: any) {
     return await this.authService.logout(req, res);
   }
 }

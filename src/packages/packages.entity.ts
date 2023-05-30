@@ -7,12 +7,10 @@ import {
 } from 'typeorm';
 import { Category } from './categories.entity';
 import { Event } from 'src/events/events.entity';
+import { BaseEntity } from 'src/utils/base.entity';
 
 @Entity()
-export class Package {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Package extends BaseEntity {
   @Column()
   name: string;
 
@@ -33,7 +31,4 @@ export class Package {
 
   @Column()
   status: string;
-
-  @Column()
-  created_at: Date;
 }

@@ -8,8 +8,8 @@ export class CreatePackageDto {
   name: string;
 
   @ApiProperty({ example: '1' })
-  @IsNumber()
-  categoryId: number;
+  @IsString()
+  categoryId: string;
 
   @ApiProperty({ example: '1000' })
   @IsNumber()

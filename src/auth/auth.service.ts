@@ -71,6 +71,9 @@ export class AuthService {
     if (!userInfo) {
       throw new NotFoundException('User with this email does not exist');
     }
+    if (userInfo.status === 'inactive') {
+      throw new BadRequestException('Account Restricted!');
+    }
     const isPasswordValid = await bcrypt.compare(
       loginInfo.password,
       userInfo.password,

@@ -49,4 +49,8 @@ export class CreateUserDto {
   @ApiProperty({ example: 10000 })
   @IsNumber()
   readonly monthly_salary: number;
+
+  @ApiProperty({ example: 'active' })
+  @IsString()
+  readonly status: string;
 }
