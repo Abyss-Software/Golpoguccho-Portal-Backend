@@ -1,5 +1,12 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Package } from './packages.entity';
+import { Event } from 'src/events/events.entity';
 
 @Entity()
 export class Category {
@@ -19,6 +26,11 @@ export class Category {
     nullable: true,
   })
   packages: Package[];
+
+  @OneToMany(() => Event, (event) => event.category, {
+    nullable: true,
+  })
+  events: Event[];
 
   @Column()
   status: string;
