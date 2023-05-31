@@ -43,7 +43,6 @@ export class PackagesService {
       await this.categoryRepo.save(category);
       return successHandler('Category created successfully', category);
     } catch (error) {
-      console.log(error);
       return errorhandler(error.status, error.message);
     }
   }

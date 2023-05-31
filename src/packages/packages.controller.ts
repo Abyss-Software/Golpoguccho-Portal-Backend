@@ -36,7 +36,6 @@ export class PackagesController {
   @ApiBearerAuth()
   @Post('create-package')
   async createPackage(@Body() createPackageDto: CreatePackageDto) {
-    console.log(createPackageDto);
     return await this.packagesService.createPackage(createPackageDto);
   }
 

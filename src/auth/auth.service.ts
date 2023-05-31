@@ -163,7 +163,6 @@ export class AuthService {
       const userInfo = await this.clientService.findClientByEmail(
         socialLoginDto.email,
       );
-      console.log('userInfo', userInfo);
       if (!userInfo) {
         const fullname =
           socialLoginDto.firstName + ' ' + socialLoginDto.lastName;
@@ -173,7 +172,7 @@ export class AuthService {
           role: 'client',
         });
         const user = await this.clientRepo.save(result);
-        console.log(user);
+
         const tokens = await this.getTokens(user.id, user.email, user.role);
         res.cookie('refreshToken', tokens.refresh_token, {
           expires: new Date(new Date().setDate(new Date().getDate() + 7)),
