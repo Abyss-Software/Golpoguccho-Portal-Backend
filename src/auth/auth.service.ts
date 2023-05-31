@@ -14,13 +14,18 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { jwtConfig } from 'src/utils/configs/jwt.config';
 import { CreateUserDto } from 'src/users/dtos/create-user.dto';
-import { successHandler } from 'src/utils/response.handler';
+import { errorhandler, successHandler } from 'src/utils/response.handler';
+import { SocialLoginDto } from 'src/clients/dto/social-login.dto';
+import { ClientsService } from 'src/clients/clients.service';
+import { Client } from 'src/clients/clients.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
+    private clientService: ClientsService,
     @InjectRepository(User) private userRepo: Repository<User>,
+    @InjectRepository(Client) private clientRepo: Repository<Client>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -149,6 +154,68 @@ export class AuthService {
       return 'Logged out!';
     } catch (err) {
       return new BadRequestException(err);
+    }
+  }
+
+  async socialLogin(req: any, socialLoginDto: SocialLoginDto, res: any) {
+    try {
+      res.header('Access-Control-Allow-Origin', req.headers.origin);
+      const userInfo = await this.clientService.findClientByEmail(
+        socialLoginDto.email,
+      );
+      console.log('userInfo', userInfo);
+      if (!userInfo) {
+        const fullname =
+          socialLoginDto.firstName + ' ' + socialLoginDto.lastName;
+        const result = this.clientRepo.create({
+          name: fullname,
+          email: socialLoginDto.email,
+          role: 'client',
+        });
+        const user = await this.clientRepo.save(result);
+        console.log(user);
+        const tokens = await this.getTokens(user.id, user.email, user.role);
+        res.cookie('refreshToken', tokens.refresh_token, {
+          expires: new Date(new Date().setDate(new Date().getDate() + 7)),
+          sameSite: 'none',
+          httpOnly: true,
+          secure: true,
+        });
+        return successHandler('Authenticated!', {
+          access_token: tokens.access_token,
+          refresh_token: tokens.refresh_token,
+          token_type: 'Bearer',
+          user_profile: {
+            fullname: user.name,
+            email: user.email,
+            role: user.role,
+          },
+        });
+      } else {
+        const tokens = await this.getTokens(
+          userInfo.id,
+          userInfo.email,
+          userInfo.role,
+        );
+        res.cookie('refreshToken', tokens.refresh_token, {
+          expires: new Date(new Date().setDate(new Date().getDate() + 7)),
+          sameSite: 'none',
+          httpOnly: true,
+          secure: true,
+        });
+        return successHandler('Authenticated!', {
+          access_token: tokens.access_token,
+          refresh_token: tokens.refresh_token,
+          token_type: 'Bearer',
+          user_profile: {
+            fullname: userInfo.name,
+            email: userInfo.email,
+            role: userInfo.role,
+          },
+        });
+      }
+    } catch (error) {
+      return errorhandler(400, JSON.stringify(error.message));
     }
   }
 }

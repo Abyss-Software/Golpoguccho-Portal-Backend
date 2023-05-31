@@ -28,4 +28,18 @@ export class ClientsService {
       errorhandler(500, error.message);
     }
   }
+
+  async findClientByEmail(email: string) {
+    const user = await this.clientRepo.findBy({ email: email });
+    return user[0];
+  }
+
+  async findClientById(id: string) {
+    try {
+      const client = await this.clientRepo.findBy({ id: id });
+      return successHandler('Client found successfully', client);
+    } catch (error) {
+      errorhandler(500, error.message);
+    }
+  }
 }

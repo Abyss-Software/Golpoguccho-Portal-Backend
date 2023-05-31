@@ -7,11 +7,14 @@ import { User } from 'src/users/users.entity';
 import { JwtModule } from '@nestjs/jwt/dist';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from 'src/utils/auth/strategy/jwt.strategy';
+import { ClientsModule } from 'src/clients/clients.module';
+import { Client } from 'src/clients/clients.entity';
 
 @Module({
   imports: [
     UsersModule,
-    TypeOrmModule.forFeature([User]),
+    ClientsModule,
+    TypeOrmModule.forFeature([User, Client]),
     JwtModule.register({}),
   ],
   providers: [AuthService, JwtStrategy],

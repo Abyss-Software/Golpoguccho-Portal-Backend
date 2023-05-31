@@ -14,6 +14,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { CreateUserDto } from 'src/users/dtos/create-user.dto';
 import { JwtAuthGuard } from 'src/utils/auth/guards/jwt-auth.guard';
 import { UserRolesGuard } from 'src/utils/auth/guards/roles.guard';
+import { SocialLoginDto } from 'src/clients/dto/social-login.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -62,5 +63,14 @@ export class AuthController {
   @Get('/logout')
   async logout(@Request() req: any, @Response({ passthrough: true }) res: any) {
     return await this.authService.logout(req, res);
+  }
+
+  @Post('social-login')
+  async socialLogin(
+    @Request() request,
+    @Body() socialLoginDto: SocialLoginDto,
+    @Response({ passthrough: true }) res,
+  ) {
+    return await this.authService.socialLogin(request, socialLoginDto, res);
   }
 }
