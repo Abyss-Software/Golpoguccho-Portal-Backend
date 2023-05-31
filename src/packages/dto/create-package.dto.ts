@@ -20,7 +20,8 @@ export class CreatePackageDto {
   description: string;
 
   @ApiProperty({
-    example: '*base64 image*',
+    example:
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAUAQMAAADWX60MAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAANQTFRFICEkL6uKCAAAAAxJREFUeJxjYKA9AAAAZAABhmQ8NQAAAABJRU5ErkJggg==',
   })
   @IsString()
   image: string;

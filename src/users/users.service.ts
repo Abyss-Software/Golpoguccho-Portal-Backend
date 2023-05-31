@@ -4,6 +4,11 @@ import { User } from './users.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dtos/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import {
+  errorhandler,
+  notfound,
+  successHandler,
+} from 'src/utils/response.handler';
 
 @Injectable()
 export class UsersService {
@@ -26,9 +31,14 @@ export class UsersService {
   }
 
   async findUser(id: string) {
-    const user = await this.userRepo.findOneBy({ id: id });
-    if (!user) return 'User not found';
-    return user;
+    try {
+      const user = await this.userRepo.findOneBy({ id: id });
+      if (!user) return notfound('User not found');
+      const { password, ...response } = user;
+      return successHandler('User found', response);
+    } catch (error) {
+      return errorhandler(500, error.message);
+    }
   }
 
   async findUserByEmail(email: string) {
@@ -37,19 +47,41 @@ export class UsersService {
   }
 
   async findAllUsers() {
-    return await this.userRepo.find();
+    try {
+      const users = await this.userRepo.find();
+      if (!users.length) return notfound('No users found');
+      const usersWithoutPassword = [];
+      users.map((user) => {
+        const { password, ...userWithoutPassword } = user;
+        usersWithoutPassword.push(userWithoutPassword);
+      });
+      return successHandler('Users found', usersWithoutPassword);
+    } catch (error) {
+      return errorhandler(500, error.message);
+    }
   }
 
   async updateUser(id: string, attributes: Partial<User>) {
-    const user = await this.userRepo.findOneBy({ id: id });
-    if (!user) throw new Error('User not found');
-    Object.assign(user, attributes);
-    return await this.userRepo.save(user);
+    try {
+      const user = await this.userRepo.findOneBy({ id: id });
+      if (!user) return notfound('User not found');
+      Object.assign(user, attributes);
+      const updatedUser = await this.userRepo.save(user);
+      const { password, ...response } = updatedUser;
+      return successHandler('User updated successfully', response);
+    } catch (error) {
+      return errorhandler(500, error.message);
+    }
   }
 
   async deleteUser(id: string) {
-    const user = await this.userRepo.findOneBy({ id: id });
-    if (!user) throw new Error('User not found');
-    return await this.userRepo.remove(user);
+    try {
+      const user = await this.userRepo.findOneBy({ id: id });
+      if (!user) throw new Error('User not found');
+      await this.userRepo.remove(user);
+      return successHandler('User deleted successfully', null);
+    } catch (error) {
+      return errorhandler(500, error.message);
+    }
   }
 }
