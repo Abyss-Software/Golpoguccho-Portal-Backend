@@ -1,3 +1,4 @@
+import { Booking } from 'src/bookings/bookings.entity';
 import { Category } from 'src/packages/categories.entity';
 import { Package } from 'src/packages/packages.entity';
 import { BaseEntity } from 'src/utils/base.entity';
@@ -11,14 +12,16 @@ import {
 
 @Entity()
 export class Event extends BaseEntity {
-  @Column()
-  booking_id: number;
-
-  @ManyToOne(() => Category, (category) => category.events)
+  @ManyToOne(() => Category, (category) => category.events, { nullable: true })
   category: Category;
 
-  @ManyToOne(() => Package, (packageItem) => packageItem.events)
+  @ManyToOne(() => Package, (packageItem) => packageItem.events, {
+    nullable: true,
+  })
   package: Package;
+
+  @ManyToOne(() => Booking, (booking) => booking.events, { nullable: true })
+  booking: Booking;
 
   @Column()
   start_time: Date;
@@ -34,6 +37,9 @@ export class Event extends BaseEntity {
 
   @Column()
   location: string;
+
+  @Column()
+  number_of_guests: number;
 
   @Column()
   physical_copy: boolean;
