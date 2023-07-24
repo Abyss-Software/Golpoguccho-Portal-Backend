@@ -1,31 +1,17 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Request,
-  Response,
-  SetMetadata,
-  UseGuards,
-} from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Request, Response } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { SocialLoginDto } from 'src/clients/dto/social-login.dto';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
-import { CreateUserDto } from 'src/users/dtos/create-user.dto';
-import { JwtAuthGuard } from 'src/utils/auth/guards/jwt-auth.guard';
-import { UserRolesGuard } from 'src/utils/auth/guards/roles.guard';
-import { SocialLoginDto } from 'src/clients/dto/social-login.dto';
+import { SignUpUserDto } from './dto/signup-user.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', ['admin', 'manager'])
-  @ApiBearerAuth()
   @Post('/signup')
-  async signUp(@Body() signUpUserDto: CreateUserDto) {
+  async signUp(@Body() signUpUserDto: SignUpUserDto) {
     return await this.authService.signUp(signUpUserDto);
   }
 

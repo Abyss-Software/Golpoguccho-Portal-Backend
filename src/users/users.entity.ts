@@ -1,4 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { role } from 'src/utils/constants/role';
+import { status } from 'src/utils/constants/status';
+import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../utils/base.entity';
 
 @Entity()
@@ -12,33 +14,9 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
-  @Column()
+  @Column({ default: role.client })
   role: string;
 
-  @Column()
-  address: string;
-
-  @Column()
-  phone_primary: string;
-
-  @Column()
-  phone_secondary: string;
-
-  @Column()
-  position: string;
-
-  @Column()
-  verification_type: string;
-
-  @Column()
-  verification_id: string;
-
-  @Column()
-  base_salary: number;
-
-  @Column()
-  monthly_salary: number;
-
-  @Column({ nullable: true })
+  @Column({ default: status.active })
   status: string;
 }

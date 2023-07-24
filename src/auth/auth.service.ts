@@ -5,19 +5,20 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { UsersService } from 'src/users/users.service';
-import { LoginUserDto } from './dto/login-user.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/users.entity';
-import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConfig } from 'src/utils/configs/jwt.config';
-import { CreateUserDto } from 'src/users/dtos/create-user.dto';
-import { errorhandler, successHandler } from 'src/utils/response.handler';
-import { SocialLoginDto } from 'src/clients/dto/social-login.dto';
-import { ClientsService } from 'src/clients/clients.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 import { Client } from 'src/clients/clients.entity';
+import { ClientsService } from 'src/clients/clients.service';
+import { SocialLoginDto } from 'src/clients/dto/social-login.dto';
+import { User } from 'src/users/users.entity';
+import { UsersService } from 'src/users/users.service';
+import { PasswordStrategy } from 'src/utils/auth/strategy/password.strategy';
+import { jwtConfig } from 'src/utils/configs/jwt.config';
+import { errorhandler, successHandler } from 'src/utils/response.handler';
+import { Repository } from 'typeorm';
+import { LoginUserDto } from './dto/login-user.dto';
+import { SignUpUserDto } from './dto/signup-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,8 @@ export class AuthService {
     private clientService: ClientsService,
     @InjectRepository(User) private userRepo: Repository<User>,
     @InjectRepository(Client) private clientRepo: Repository<Client>,
-    private readonly jwtService: JwtService,
+    private jwtService: JwtService,
+    private passwordStrategy: PasswordStrategy,
   ) {}
 
   async getTokens(userId: string, email: string, role: string) {
@@ -50,24 +52,31 @@ export class AuthService {
     };
   }
 
-  async signUp(signupUserDto: CreateUserDto) {
+  async signUp(signupUserDto: SignUpUserDto) {
     const user = await this.usersService.findUserByEmail(signupUserDto.email);
     if (user.length) {
       throw new BadRequestException('User with this email already exists');
     }
-    const newUser: User = await this.usersService.createUser(signupUserDto);
+
+    let newUser;
+    try {
+      const encPassword = await this.passwordStrategy.hashPassword(
+        signupUserDto.password,
+      );
+      newUser = this.userRepo.create({
+        ...signupUserDto,
+        password: encPassword,
+      });
+      await this.userRepo.save(newUser);
+    } catch (error) {
+      return error;
+    }
+
     return successHandler('User created successfully', {
       id: newUser.id,
       name: newUser.name,
       email: newUser.email,
       role: newUser.role,
-      address: newUser.address,
-      phone_primary: newUser.phone_primary,
-      position: newUser.position,
-      verification_type: newUser.verification_type,
-      verification_id: newUser.verification_id,
-      base_salary: newUser.base_salary,
-      monthly_salary: newUser.monthly_salary,
     });
   }
 
@@ -91,7 +100,6 @@ export class AuthService {
       userInfo.email,
       userInfo.role,
     );
-    console.warn('dsfakj', userInfo);
 
     return successHandler('Login successful', {
       access_token: tokens.access_token,
