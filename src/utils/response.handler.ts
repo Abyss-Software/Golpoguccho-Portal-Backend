@@ -1,3 +1,5 @@
+import { HttpException } from '@nestjs/common';
+
 export const responseBuilder = (
   code: number,
   success: boolean,
@@ -21,17 +23,18 @@ export const successHandler = (message: string, data: any) => {
 };
 
 export const unauthorized = (message = 'Unauthorized!') => {
-  return responseBuilder(401, false, message, {});
+  throw new HttpException(message, 401);
 };
 
 export const errorhandler = (code: number, errormessage: string) => {
-  return responseBuilder(code, false, errormessage, {});
+  console.log(errormessage);
+  throw new HttpException(errormessage, code);
 };
 
 export const forbidden = (message: string) => {
-  return responseBuilder(403, false, message, {});
+  throw new HttpException(message, 403);
 };
 
 export const notfound = (message = 'Not found') => {
-  return responseBuilder(404, false, message, {});
+  throw new HttpException(message, 404);
 };

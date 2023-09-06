@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Category } from './categories.entity';
-import { In, Repository } from 'typeorm';
-import { Package } from './packages.entity';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { CreatePackageDto } from './dto/create-package.dto';
+import { status } from 'src/utils/constants/status';
 import { CloudinaryUpload } from 'src/utils/image-upload/coudinary-upload';
 import {
   errorhandler,
   notfound,
   successHandler,
 } from 'src/utils/response.handler';
+import { Repository } from 'typeorm';
+import { Category } from './categories.entity';
+import { CreateCategoryDto } from './dto/create-category.dto';
+import { CreatePackageDto } from './dto/create-package.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
-
+import { Package } from './packages.entity';
 @Injectable()
 export class PackagesService {
   constructor(
@@ -26,7 +26,7 @@ export class PackagesService {
   async createCategory(createCategoryDto: CreateCategoryDto) {
     try {
       const existingCategory = await this.categoryRepo.findOneBy({
-        name: createCategoryDto.name,
+        title: createCategoryDto.title,
       });
       if (existingCategory)
         return errorhandler(400, 'Category with this name already exists');
@@ -34,11 +34,13 @@ export class PackagesService {
       const imageUpload = await CloudinaryUpload(
         createCategoryDto.image,
         'categories',
-        createCategoryDto.name,
+        createCategoryDto.title,
       );
+
       const category = this.categoryRepo.create({
         ...createCategoryDto,
         image: imageUpload.secure_url,
+        status: status.active,
       });
       await this.categoryRepo.save(category);
       return successHandler('Category created successfully', category);
@@ -50,7 +52,7 @@ export class PackagesService {
   async createPackage(createPackageDto: CreatePackageDto) {
     try {
       const existingPackage = await this.packageRepo.findOneBy({
-        name: createPackageDto.name,
+        title: createPackageDto.title,
       });
       if (existingPackage)
         return errorhandler(400, 'Package with this name already exists');
@@ -58,7 +60,7 @@ export class PackagesService {
       const imageUpload = await CloudinaryUpload(
         createPackageDto.image,
         'packages',
-        createPackageDto.name,
+        createPackageDto.title,
       );
       const category = await this.categoryRepo.findOneBy({
         id: createPackageDto.categoryId,
@@ -67,6 +69,7 @@ export class PackagesService {
         ...createPackageDto,
         image: imageUpload.secure_url,
         category: category,
+        status: status.active,
       });
       await this.packageRepo.save(packageData);
 
@@ -147,8 +150,9 @@ export class PackagesService {
     try {
       const categoryData = await this.categoryRepo.findOneBy({ id: id });
       if (!categoryData) return notfound('Category not found');
-
-      await this.categoryRepo.delete(categoryData);
+      console.log(categoryData);
+      const del = await this.categoryRepo.remove(categoryData);
+      console.log('del', del);
       return successHandler('Category deleted successfully', {});
     } catch (error) {
       return errorhandler(error.status, error.message);

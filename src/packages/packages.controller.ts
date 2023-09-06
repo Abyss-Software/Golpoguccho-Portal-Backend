@@ -9,14 +9,15 @@ import {
   SetMetadata,
   UseGuards,
 } from '@nestjs/common';
-import { PackagesService } from './packages.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/utils/auth/guards/jwt-auth.guard';
+import { UserRolesGuard } from 'src/utils/auth/guards/roles.guard';
+import { role } from 'src/utils/constants/role';
+import { CreateCategoryDto } from './dto/create-category.dto';
 import { CreatePackageDto } from './dto/create-package.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
-import { JwtAuthGuard } from 'src/utils/auth/guards/jwt-auth.guard';
-import { UserRolesGuard } from 'src/utils/auth/guards/roles.guard';
+import { PackagesService } from './packages.service';
 
 @ApiTags('Packages')
 @Controller('packages')
@@ -24,7 +25,7 @@ export class PackagesController {
   constructor(private readonly packagesService: PackagesService) {}
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', ['admin', 'manager'])
+  @SetMetadata('roles', [role.admin, role.manager])
   @ApiBearerAuth()
   @Post('create-category')
   async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
@@ -32,7 +33,7 @@ export class PackagesController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', ['admin', 'manager'])
+  @SetMetadata('roles', [role.admin, role.manager])
   @ApiBearerAuth()
   @Post('create-package')
   async createPackage(@Body() createPackageDto: CreatePackageDto) {
@@ -60,7 +61,7 @@ export class PackagesController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', ['admin', 'manager'])
+  @SetMetadata('roles', [role.admin, role.manager])
   @ApiBearerAuth()
   @Patch('category/:id')
   async updateCategory(
@@ -71,7 +72,7 @@ export class PackagesController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', ['admin', 'manager'])
+  @SetMetadata('roles', [role.admin, role.manager])
   @ApiBearerAuth()
   @Patch('/:id')
   async updatePackage(
@@ -82,7 +83,7 @@ export class PackagesController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', ['admin', 'manager'])
+  @SetMetadata('roles', [role.admin, role.manager])
   @ApiBearerAuth()
   @Delete('category/:id')
   async deleteCategory(@Param('id') id: string) {
@@ -90,7 +91,7 @@ export class PackagesController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', ['admin', 'manager'])
+  @SetMetadata('roles', [role.admin, role.manager])
   @ApiBearerAuth()
   @Delete('/:id')
   async deletePackage(@Param('id') id: string) {

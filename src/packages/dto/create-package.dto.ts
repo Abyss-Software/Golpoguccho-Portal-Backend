@@ -1,11 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
-import { status } from 'src/utils/constants/status';
 
 export class CreatePackageDto {
   @ApiProperty({ example: 'Muslim1' })
   @IsString()
-  name: string;
+  title: string;
 
   @ApiProperty({ example: '1' })
   @IsString()
@@ -25,8 +24,4 @@ export class CreatePackageDto {
   })
   @IsString()
   image: string;
-
-  @ApiProperty({ example: status.active })
-  @IsString()
-  status: string;
 }
