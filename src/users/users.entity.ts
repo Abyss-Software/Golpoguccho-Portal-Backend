@@ -1,6 +1,7 @@
+import { Booking } from 'src/bookings/bookings.entity';
 import { role } from 'src/utils/constants/role';
 import { status } from 'src/utils/constants/status';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../utils/base.entity';
 
 @Entity()
@@ -19,4 +20,7 @@ export class User extends BaseEntity {
 
   @Column({ default: status.active })
   status: string;
+
+  @OneToMany(() => Booking, (booking) => booking.client)
+  bookings: Booking[];
 }

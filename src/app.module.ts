@@ -5,10 +5,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { BookingsModule } from './bookings/bookings.module';
-import { ClientsModule } from './clients/clients.module';
 import { EventsModule } from './events/events.module';
 import { PackagesModule } from './packages/packages.module';
 import { UsersModule } from './users/users.module';
+import { PaymentModule } from './payment/payment.module';
+import { PromoModule } from './promo/promo.module';
 
 @Module({
   imports: [
@@ -23,9 +24,10 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     PackagesModule,
     EventsModule,
-    ClientsModule,
     BookingsModule,
     AppConfigModule,
+    PaymentModule,
+    PromoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

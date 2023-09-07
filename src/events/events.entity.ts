@@ -2,13 +2,7 @@ import { Booking } from 'src/bookings/bookings.entity';
 import { Category } from 'src/packages/categories.entity';
 import { Package } from 'src/packages/packages.entity';
 import { BaseEntity } from 'src/utils/base.entity';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity()
 export class Event extends BaseEntity {
@@ -24,13 +18,16 @@ export class Event extends BaseEntity {
   booking: Booking;
 
   @Column()
-  start_time: Date;
-
-  @Column()
-  end_time: Date;
+  title: string;
 
   @Column()
   event_date: Date;
+
+  @Column()
+  start_time: string;
+
+  @Column()
+  end_time: string;
 
   @Column()
   venue: string;
@@ -42,14 +39,11 @@ export class Event extends BaseEntity {
   number_of_guests: number;
 
   @Column()
-  physical_copy: boolean;
+  day_or_evening: string;
 
   @Column()
-  feedback: string;
+  dhaka_or_outside: string;
 
   @Column()
-  status: string;
-
-  @Column()
-  review: string;
+  additional_info: string;
 }

@@ -42,6 +42,8 @@ export class PackagesService {
         image: imageUpload.secure_url,
         status: status.active,
       });
+      console.log(category);
+
       await this.categoryRepo.save(category);
       return successHandler('Category created successfully', category);
     } catch (error) {
@@ -81,7 +83,10 @@ export class PackagesService {
 
   async getAllCategories() {
     try {
-      const categories = await this.categoryRepo.find();
+      const categories = await this.categoryRepo.find({
+        relations: ['packages'],
+      });
+      console.log(categories);
       return successHandler('Categories fetched successfully', categories);
     } catch (error) {
       return errorhandler(error.status, error.message);

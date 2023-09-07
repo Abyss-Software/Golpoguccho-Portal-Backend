@@ -1,24 +1,39 @@
-import { Client } from 'src/clients/clients.entity';
 import { Event } from 'src/events/events.entity';
+import { User } from 'src/users/users.entity';
 import { BaseEntity } from 'src/utils/base.entity';
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity()
 export class Booking extends BaseEntity {
-  @Column()
-  name: string;
-
-  @ManyToOne(() => Client, (client) => client.bookings, { nullable: true })
-  client: Client;
+  @ManyToOne(() => User, (user) => user.bookings)
+  client: User;
 
   @OneToMany(() => Event, (event) => event.booking, { nullable: true })
   events: Event[];
 
   @Column()
-  phone_primary: string;
+  title: string;
 
   @Column()
-  phone_secondary: string;
+  name: string;
+
+  @Column()
+  email: string;
+
+  @Column()
+  contact_primary: string;
+
+  @Column({ nullable: true })
+  contact_secondary: string;
+
+  @Column()
+  address: string;
+
+  @Column()
+  city: string;
+
+  @Column({ nullable: true })
+  promo_code: string;
 
   @Column()
   total_payment: number;
@@ -28,4 +43,19 @@ export class Booking extends BaseEntity {
 
   @Column()
   due_payment: number;
+
+  @Column({ nullable: true })
+  physical_copy: boolean;
+
+  @Column({ nullable: true })
+  feedback: string;
+
+  @Column({ nullable: true })
+  review: string;
+
+  @Column()
+  status: string;
+
+  @Column({ nullable: true })
+  additional_information: string;
 }
