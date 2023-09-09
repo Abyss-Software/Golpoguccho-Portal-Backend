@@ -43,7 +43,6 @@ export class PromoController {
   @ApiBearerAuth()
   @Get('/:code')
   async getPromoByCode(@Param('code') code: string) {
-    console.log(code);
     return await this.promoService.getPromoByCode(code);
   }
 
@@ -63,6 +62,7 @@ export class PromoController {
   @ApiBearerAuth()
   @Delete('/:code')
   async deletePromo(@Param('code') code: string) {
+    console.log(code);
     return await this.promoService.deletePromo(code);
   }
 

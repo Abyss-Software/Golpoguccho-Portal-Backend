@@ -17,9 +17,7 @@ export class BookingsController {
 
   @ApiBearerAuth()
   @Post('create-event')
-  async createEvent(@Body() createEventDto: CreateEventDto) {
-    console.log(createEventDto);
-  }
+  async createEvent(@Body() createEventDto: CreateEventDto) {}
 
   @Get()
   async getBookings() {

@@ -18,8 +18,8 @@ export class Promo extends BaseEntity {
   @Column()
   max_discount: number;
 
-  @Column()
-  expiry_date: string;
+  @Column({ nullable: true })
+  expiry_date: Date;
 
   @Column()
   status: string;

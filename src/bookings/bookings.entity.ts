@@ -32,17 +32,8 @@ export class Booking extends BaseEntity {
   @Column()
   city: string;
 
-  @Column({ nullable: true })
-  promo_code: string;
-
   @Column()
-  total_payment: number;
-
-  @Column()
-  advance_payment: number;
-
-  @Column()
-  due_payment: number;
+  status: string;
 
   @Column({ nullable: true })
   physical_copy: boolean;
@@ -53,9 +44,39 @@ export class Booking extends BaseEntity {
   @Column({ nullable: true })
   review: string;
 
-  @Column()
-  status: string;
-
   @Column({ nullable: true })
   additional_information: string;
+
+  @Column({ nullable: true })
+  promo_code: string;
+
+  @Column()
+  total_payment: number;
+
+  @Column({ nullable: true })
+  payment_status: string;
+
+  @Column()
+  advance_payment: number;
+
+  @Column({ nullable: true })
+  advance_method: string;
+
+  @Column({ nullable: true })
+  advance_date: Date;
+
+  @Column({ nullable: true })
+  advance_transaction: string;
+
+  @Column()
+  due_payment: number;
+
+  @Column({ nullable: true })
+  due_method: string;
+
+  @Column({ nullable: true })
+  due_date: Date;
+
+  @Column({ nullable: true })
+  due_transaction: string;
 }

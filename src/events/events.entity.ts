@@ -1,8 +1,9 @@
 import { Booking } from 'src/bookings/bookings.entity';
 import { Category } from 'src/packages/categories.entity';
 import { Package } from 'src/packages/packages.entity';
+import { User } from 'src/users/users.entity';
 import { BaseEntity } from 'src/utils/base.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 
 @Entity()
 export class Event extends BaseEntity {
@@ -16,6 +17,10 @@ export class Event extends BaseEntity {
 
   @ManyToOne(() => Booking, (booking) => booking.events, { nullable: true })
   booking: Booking;
+
+  @ManyToMany(() => User, { nullable: true })
+  @JoinTable()
+  employees: User[];
 
   @Column()
   title: string;

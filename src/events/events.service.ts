@@ -61,7 +61,7 @@ export class EventsService {
           return await this.eventRepo.save(newEvent);
         }),
       );
-      console.log(eventResult);
+
       return eventResult;
     } catch (error) {
       return error;

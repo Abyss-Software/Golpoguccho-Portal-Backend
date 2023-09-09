@@ -8,5 +8,6 @@ import { PromoService } from './promo.service';
   imports: [TypeOrmModule.forFeature([Promo])],
   controllers: [PromoController],
   providers: [PromoService],
+  exports: [PromoService],
 })
 export class PromoModule {}

@@ -24,7 +24,7 @@ export class CreatePromoDto {
 
   @ApiProperty({ example: '2025-10-10' })
   @IsString()
-  expiryDate: string;
+  expiryDate: Date;
 
   @ApiProperty({ example: 'active' })
   @IsString()

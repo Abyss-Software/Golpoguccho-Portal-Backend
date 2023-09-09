@@ -12,6 +12,7 @@ import { User } from 'src/users/users.entity';
 import { UsersService } from 'src/users/users.service';
 import { PasswordStrategy } from 'src/utils/auth/strategy/password.strategy';
 import { jwtConfig } from 'src/utils/configs/jwt.config';
+import { role } from 'src/utils/constants/role';
 import { successHandler } from 'src/utils/response.handler';
 import { Repository } from 'typeorm';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -48,7 +49,7 @@ export class AuthService {
     };
   }
 
-  async signUp(signupUserDto: SignUpUserDto) {
+  async signUp(signupUserDto: SignUpUserDto, userRole: string = role.client) {
     const user = await this.usersService.findUserByEmail(signupUserDto.email);
     if (user.length) {
       throw new BadRequestException('User with this email already exists');
@@ -62,8 +63,13 @@ export class AuthService {
       newUser = this.userRepo.create({
         ...signupUserDto,
         password: encPassword,
+        role: userRole,
       });
       await this.userRepo.save(newUser);
+
+      delete newUser.password;
+
+      return newUser;
     } catch (error) {
       return error;
     }

@@ -42,7 +42,6 @@ export class PackagesService {
         image: imageUpload.secure_url,
         status: status.active,
       });
-      console.log(category);
 
       await this.categoryRepo.save(category);
       return successHandler('Category created successfully', category);
@@ -86,7 +85,7 @@ export class PackagesService {
       const categories = await this.categoryRepo.find({
         relations: ['packages'],
       });
-      console.log(categories);
+
       return successHandler('Categories fetched successfully', categories);
     } catch (error) {
       return errorhandler(error.status, error.message);
@@ -155,9 +154,9 @@ export class PackagesService {
     try {
       const categoryData = await this.categoryRepo.findOneBy({ id: id });
       if (!categoryData) return notfound('Category not found');
-      console.log(categoryData);
+
       const del = await this.categoryRepo.remove(categoryData);
-      console.log('del', del);
+
       return successHandler('Category deleted successfully', {});
     } catch (error) {
       return errorhandler(error.status, error.message);

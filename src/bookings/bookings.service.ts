@@ -53,8 +53,6 @@ export class BookingsService {
         bookingResult.id,
       );
 
-      console.log(bookingResult, eventResult);
-
       return booking;
     } catch (error) {
       return error;

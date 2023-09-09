@@ -7,9 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { EventsModule } from './events/events.module';
 import { PackagesModule } from './packages/packages.module';
-import { UsersModule } from './users/users.module';
 import { PaymentModule } from './payment/payment.module';
 import { PromoModule } from './promo/promo.module';
+import { UsersModule } from './users/users.module';
+import { EmployeesModule } from './employees/employees.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { PromoModule } from './promo/promo.module';
     AppConfigModule,
     PaymentModule,
     PromoModule,
+    EmployeesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
