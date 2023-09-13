@@ -1,5 +1,6 @@
 import {
   Body,
+  Catch,
   Controller,
   Delete,
   Get,
@@ -17,6 +18,7 @@ import { CreatePromoDto } from './dto/create-promo.dto';
 import { ValidatePromoDto } from './dto/validate-promo.dto';
 import { PromoService } from './promo.service';
 
+@Catch()
 @ApiTags('Promo')
 @Controller('promo')
 export class PromoController {
@@ -62,7 +64,6 @@ export class PromoController {
   @ApiBearerAuth()
   @Delete('/:code')
   async deletePromo(@Param('code') code: string) {
-    console.log(code);
     return await this.promoService.deletePromo(code);
   }
 

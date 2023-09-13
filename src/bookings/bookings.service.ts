@@ -3,10 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from 'src/events/events.entity';
 import { EventsService } from 'src/events/events.service';
 import { User } from 'src/users/users.entity';
-import { errorhandler } from 'src/utils/response.handler';
+import { bookingStatus } from 'src/utils/constants/bookingStatus';
+import { errorhandler, successHandler } from 'src/utils/response.handler';
 import { Repository } from 'typeorm';
 import { Booking } from './bookings.entity';
 import { CreateBookingDto } from './dto/create-booking.dto';
+import { DuePaymentDto } from './dto/due-payment.dto';
 
 @Injectable()
 export class BookingsService {
@@ -21,107 +23,151 @@ export class BookingsService {
   ) {}
 
   async createBooking(createBookingDto: CreateBookingDto) {
-    try {
-      const clientAccount = await this.userRepo.findOneBy({
-        id: createBookingDto.clientId,
-      });
+    const clientAccount = await this.userRepo.findOneBy({
+      id: createBookingDto.clientId,
+    });
+    console.log(createBookingDto);
 
-      if (!clientAccount) return errorhandler(404, 'Client account not found');
+    if (!clientAccount) return errorhandler(404, 'Client account not found');
+    console.log('promoCode', createBookingDto.promoCode);
+    const booking = this.bookingRepo.create({
+      client: clientAccount,
+      bookingTitle: createBookingDto.bookingTitle,
+      fullName: createBookingDto.fullName,
+      email: createBookingDto.email,
+      contactPrimary: createBookingDto.contactPrimary,
+      contactSecondary: createBookingDto.contactSecondary,
+      address: createBookingDto.address,
+      city: createBookingDto.city,
+      status: bookingStatus.pending,
+      promoCode: createBookingDto.promoCode,
+      totalPayment: createBookingDto.totalPayment,
+      advancePayment: createBookingDto.advancePayment,
+      advancePaymentMethod: createBookingDto.advancePaymentMethod,
+      advancePaymentDate: new Date(),
+      advanceTransactionId: createBookingDto.advanceTransactionId,
+      duePayment: createBookingDto.duePayment,
+    });
 
-      const booking = this.bookingRepo.create({
-        address: createBookingDto.address,
-        city: createBookingDto.city,
-        contact_primary: createBookingDto.contactPrimary,
-        contact_secondary: createBookingDto.contactSecondary,
-        email: createBookingDto.email,
-        name: createBookingDto.fullName,
-        title: createBookingDto.bookingTitle,
-        client: clientAccount,
-        status: 'pending',
-        additional_information: createBookingDto.additionalInfo,
-        promo_code: createBookingDto.promoCode,
-        advance_payment: createBookingDto.advancePayment,
-        due_payment: createBookingDto.duePayment,
-        total_payment: createBookingDto.totalPayment,
-        physical_copy: createBookingDto.physicalCopy,
-      });
+    const bookingResult = await this.bookingRepo.save(booking);
 
-      const bookingResult = await this.bookingRepo.save(booking);
+    const eventResult = await this.eventsService.createEvent(
+      createBookingDto.events,
+      bookingResult.id,
+    );
 
-      const eventResult = await this.eventsService.createEvent(
-        createBookingDto.events,
-        bookingResult.id,
-      );
-
-      return booking;
-    } catch (error) {
-      return error;
-    }
+    return successHandler('Booking Created Successfully!', {
+      bookingResult,
+      eventResult,
+    });
   }
 
   async getAllBookings() {
-    try {
-      const bookings = await this.bookingRepo.find({
-        relations: ['events', 'client'],
-      });
+    const bookings = await this.bookingRepo.find({
+      relations: ['events'],
+    });
 
-      return bookings;
-    } catch (error) {
-      return error;
-    }
+    return successHandler('All Bookings', bookings);
   }
 
   async getBookingById(bookingId: string) {
-    try {
-      const booking = await this.bookingRepo.findOneBy({ id: bookingId });
+    console.log(bookingId);
+    const booking = await this.bookingRepo.findOne({
+      where: { id: bookingId },
+      relations: ['events', 'events.category', 'events.package'],
+    });
+    // .createQueryBuilder('booking')
+    // .innerJoinAndSelect('booking.events', 'events')
+    // .leftJoinAndSelect('events.category', 'categories')
+    // .leftJoinAndSelect('events.package', 'packages')
+    // .leftJoinAndSelect('booking.client', 'users')
+    // .where('booking.id=:id')
+    // .setParameter('id', bookingId)
+    // .getOne();
 
-      if (!booking) return errorhandler(404, 'Booking not found');
+    console.log(booking);
 
-      return booking;
-    } catch (error) {
-      return error;
-    }
+    if (!booking) return errorhandler(404, 'Booking not found');
+
+    return booking;
   }
 
   async getBookingsByClientId(clientId: string) {
-    try {
-      const bookings = await this.bookingRepo.find({
-        where: { client: { id: clientId } },
-        relations: ['events', 'client'],
-      });
+    const bookings = await this.bookingRepo.find({
+      where: { client: { id: clientId } },
+      relations: ['events', 'client'],
+    });
 
-      return bookings;
-    } catch (error) {
-      return error;
-    }
+    return bookings;
   }
 
-  async updateBooking(bookingId: string, attributes: CreateBookingDto) {
-    try {
-      const booking = await this.bookingRepo.findOneBy({ id: bookingId });
+  async makeDuePayment(duePaymentDto: DuePaymentDto) {
+    const booking = await this.bookingRepo.findOne({
+      where: { id: duePaymentDto.bookingId },
+      relations: ['events', 'events.category', 'events.package'],
+    });
 
-      if (!booking) return errorhandler(404, 'Booking not found');
+    if (!booking) return errorhandler(404, 'Booking not found');
 
-      const updatedBooking = await this.bookingRepo.save({
-        address: attributes.address,
-        city: attributes.city,
-        contact_primary: attributes.contactPrimary,
-        contact_secondary: attributes.contactSecondary,
-        email: attributes.email,
-        name: attributes.fullName,
-        title: attributes.bookingTitle,
-        status: 'pending',
-        additional_information: attributes.additionalInfo,
-        promo_code: attributes.promoCode,
-        advance_payment: attributes.advancePayment,
-        due_payment: attributes.duePayment,
-        total_payment: attributes.totalPayment,
-        physical_copy: attributes.physicalCopy,
-      });
+    booking.duePaymentMethod = duePaymentDto.duePaymentMethod;
+    booking.dueTransactionId = duePaymentDto.dueTransactionId;
+    booking.duePaymentDate = new Date();
 
-      return updatedBooking;
-    } catch (error) {
-      return error;
-    }
+    const bookingResult = await this.bookingRepo.save(booking);
+
+    return successHandler('Due Payment Made Successfully!', bookingResult);
+  }
+
+  async changeStatus(statusUpdateDto: { bookingId: string; status: string }) {
+    const booking = await this.bookingRepo.findOne({
+      where: { id: statusUpdateDto.bookingId },
+      relations: ['events', 'events.category', 'events.package'],
+    });
+
+    if (!booking) return errorhandler(404, 'Booking not found');
+
+    booking.status = statusUpdateDto.status;
+
+    const bookingResult = await this.bookingRepo.save(booking);
+
+    return successHandler(
+      'Booking Status Updated Successfully!',
+      bookingResult,
+    );
+  }
+
+  async setLibraryLink(libraryLinkDto: { bookingId: string; link: string }) {
+    const booking = await this.bookingRepo.findOne({
+      where: { id: libraryLinkDto.bookingId },
+      relations: ['events', 'events.category', 'events.package'],
+    });
+
+    if (!booking) return errorhandler(404, 'Booking not found');
+
+    booking.images = libraryLinkDto.link;
+
+    const bookingResult = await this.bookingRepo.save(booking);
+
+    return successHandler('Library Link Updated Successfully!', bookingResult);
+  }
+
+  async giveFeedback(feedbackDto: {
+    bookingId: string;
+    feedback?: string;
+    review?: string;
+  }) {
+    const booking = await this.bookingRepo.findOne({
+      where: { id: feedbackDto.bookingId },
+      relations: ['events', 'events.category', 'events.package'],
+    });
+
+    if (!booking) return errorhandler(404, 'Booking not found');
+
+    booking.feedback = feedbackDto.feedback;
+    booking.review = feedbackDto.review;
+
+    const bookingResult = await this.bookingRepo.save(booking);
+
+    return successHandler('Feedback Updated Successfully!', bookingResult);
   }
 }

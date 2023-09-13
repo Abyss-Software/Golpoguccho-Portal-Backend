@@ -14,12 +14,6 @@ export class CreateEventDto {
   @IsString()
   packageId: string;
 
-  // @ApiProperty({
-  //   example: 'f6b9b4e0-4e9e-4b0e-8e4a-6b1f6d3e1f0a',
-  // })
-  // @IsString()
-  // bookingId: string;
-
   @ApiProperty({ example: 'Siams Wedding' })
   @IsString()
   eventTitle: string;

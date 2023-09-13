@@ -1,4 +1,4 @@
 export const status = {
-  active: 'active',
-  inactive: 'inactive',
+  active: 'ACTIVE',
+  inactive: 'INACTIVE',
 };

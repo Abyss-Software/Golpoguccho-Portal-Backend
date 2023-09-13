@@ -1,5 +1,6 @@
 import {
   Body,
+  Catch,
   Controller,
   Delete,
   Get,
@@ -17,6 +18,7 @@ import { CreateEmployeeDto } from './dto/createEmployee.dto';
 import { UpdateEmployeeDto } from './dto/updateEmployee.dto';
 import { EmployeesService } from './employees.service';
 
+@Catch()
 @ApiTags('Employees')
 @Controller('employees')
 export class EmployeesController {
@@ -38,12 +40,9 @@ export class EmployeesController {
     return await this.employeesService.getAllEmployees();
   }
 
-  @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin])
   @ApiBearerAuth()
   @Get('/:id')
   async getEmployeeById(@Param('id') id: string) {
-    console.log(id);
     return await this.employeesService.getEmployeeById(id);
   }
 

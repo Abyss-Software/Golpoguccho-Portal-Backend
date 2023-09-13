@@ -1,9 +1,19 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Catch,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateEventDto } from 'src/events/dto/create-event.dto';
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
+import { DuePaymentDto } from './dto/due-payment.dto';
 
+@Catch()
 @ApiTags('Bookings')
 @Controller('bookings')
 export class BookingsController {
@@ -35,12 +45,35 @@ export class BookingsController {
     return await this.bookingsService.getBookingsByClientId(id);
   }
 
-  @Patch('/:id')
-  async updateBooking(
-    @Param('id') id: string,
-    @Body() updateBookingDto: CreateBookingDto,
+  @Patch('due-payment')
+  async makeDuePayment(@Body() duePaymentDto: DuePaymentDto) {
+    return await this.bookingsService.makeDuePayment(duePaymentDto);
+  }
+
+  @Patch('status')
+  async changeStatus(
+    @Body() statusUpdateDto: { bookingId: string; status: string },
   ) {
-    return await this.bookingsService.updateBooking(id, updateBookingDto);
+    return await this.bookingsService.changeStatus(statusUpdateDto);
+  }
+
+  @Patch('link')
+  async setLibraryLink(
+    @Body() libraryLinkDto: { bookingId: string; link: string },
+  ) {
+    return await this.bookingsService.setLibraryLink(libraryLinkDto);
+  }
+
+  @Patch('review')
+  async giveFeedback(
+    @Body()
+    feedbackDto: {
+      bookingId: string;
+      feedback?: string;
+      review?: string;
+    },
+  ) {
+    return await this.bookingsService.giveFeedback(feedbackDto);
   }
 
   //   @Delete('/:id')

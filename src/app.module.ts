@@ -5,12 +5,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { BookingsModule } from './bookings/bookings.module';
+import { EmployeesModule } from './employees/employees.module';
 import { EventsModule } from './events/events.module';
+import { ExceptionsFiltersModule } from './exceptions-filters/exceptions-fitlers.module';
 import { PackagesModule } from './packages/packages.module';
 import { PaymentModule } from './payment/payment.module';
 import { PromoModule } from './promo/promo.module';
 import { UsersModule } from './users/users.module';
-import { EmployeesModule } from './employees/employees.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { EmployeesModule } from './employees/employees.module';
     PaymentModule,
     PromoModule,
     EmployeesModule,
+    ExceptionsFiltersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

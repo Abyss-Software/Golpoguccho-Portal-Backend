@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
 import { CreateEventDto } from 'src/events/dto/create-event.dto';
 
 export class CreateBookingDto {
@@ -35,6 +35,7 @@ export class CreateBookingDto {
     example: '+880 1711-222222',
   })
   @IsString()
+  @IsOptional()
   contactSecondary: string;
 
   @ApiProperty({
@@ -54,9 +55,10 @@ export class CreateBookingDto {
   events?: CreateEventDto[];
 
   @ApiProperty({
-    example: 'discount10',
+    example: '',
   })
   @IsString()
+  @IsOptional()
   promoCode?: string;
 
   @ApiProperty({
@@ -71,27 +73,35 @@ export class CreateBookingDto {
   @IsNumber()
   advancePayment: number;
 
+  @ApiProperty({ example: 'bKash' })
+  @IsString()
+  advancePaymentMethod: string;
+
+  @ApiProperty({ example: '111111111' })
+  @IsString()
+  advanceTransactionId: string;
+
   @ApiProperty({
     example: 500,
   })
   @IsNumber()
   duePayment: number;
 
-  @ApiProperty({
-    example: 'true',
-  })
-  @IsBoolean()
-  physicalCopy: boolean;
+  // @ApiProperty({
+  //   example: 'true',
+  // })
+  // @IsBoolean()
+  // physicalCopy: boolean;
 
-  @ApiProperty({
-    example: 'pending',
-  })
-  @IsString()
-  status: string;
+  // @ApiProperty({
+  //   example: 'pending',
+  // })
+  // @IsString()
+  // status: string;
 
-  @ApiProperty({
-    example: 'additionalInfo',
-  })
-  @IsString()
-  additionalInfo: string;
+  // @ApiProperty({
+  //   example: 'additionalInfo',
+  // })
+  // @IsString()
+  // additionalInfo: string;
 }

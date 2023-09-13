@@ -9,7 +9,7 @@ export class Promo extends BaseEntity {
   @Column()
   description: string;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 3 })
   percentage: number;
 
   @Column()

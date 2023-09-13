@@ -56,30 +56,20 @@ export class AuthService {
     }
 
     let newUser;
-    try {
-      const encPassword = await this.passwordStrategy.hashPassword(
-        signupUserDto.password,
-      );
-      newUser = this.userRepo.create({
-        ...signupUserDto,
-        password: encPassword,
-        role: userRole,
-      });
-      await this.userRepo.save(newUser);
 
-      delete newUser.password;
-
-      return newUser;
-    } catch (error) {
-      return error;
-    }
-
-    return successHandler('User created successfully', {
-      id: newUser.id,
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role,
+    const encPassword = await this.passwordStrategy.hashPassword(
+      signupUserDto.password,
+    );
+    newUser = this.userRepo.create({
+      ...signupUserDto,
+      password: encPassword,
+      role: userRole,
     });
+    await this.userRepo.save(newUser);
+
+    delete newUser.password;
+
+    return newUser;
   }
 
   async login(loginInfo: LoginUserDto) {
@@ -118,17 +108,22 @@ export class AuthService {
   async refreshTokens(res: any, req: any, token: string) {
     try {
       res.header('Access-Control-Allow-Origin', req.headers.origin);
+
       const decodedJwtRefreshToken: any = this.jwtService.decode(token);
+
       if (!decodedJwtRefreshToken) {
         throw new ForbiddenException('Access Denied');
       }
       const expires = decodedJwtRefreshToken.exp;
+
       if (expires < new Date().getTime() / 1000) {
         throw new ForbiddenException('Access Denied');
       }
+
       const userInfo = await this.userRepo.findOneBy({
         id: decodedJwtRefreshToken.sub,
       });
+
       if (!userInfo) {
         throw new ForbiddenException('Access Denied');
       }
@@ -138,6 +133,7 @@ export class AuthService {
         userInfo.email,
         userInfo.role,
       );
+
       return successHandler('Login successful', {
         access_token: tokens.access_token,
         refresh_token: tokens.refresh_token,

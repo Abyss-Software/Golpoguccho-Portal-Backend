@@ -20,113 +20,94 @@ export class EmployeesService {
   ) {}
 
   async createEmployee(employeeInfo: CreateEmployeeDto) {
-    try {
-      const user = await this.authService.signUp(
-        {
-          name: employeeInfo.name,
-          email: employeeInfo.email,
-          password: employeeInfo.password,
-        },
-        role.employee,
-      );
+    const user = await this.authService.signUp(
+      {
+        name: employeeInfo.name,
+        email: employeeInfo.email,
+        password: employeeInfo.password,
+      },
+      role.employee,
+    );
 
-      const employee = this.employeeRepo.create({
-        ...employeeInfo,
-        user: user,
-      });
-      await this.employeeRepo.save(employee);
-      return employee;
-    } catch (error) {
-      return error;
-    }
+    const employee = this.employeeRepo.create({
+      ...employeeInfo,
+      user: user,
+    });
+    await this.employeeRepo.save(employee);
+
+    return employee;
   }
 
   async getAllEmployees() {
-    try {
-      const employees = await this.employeeRepo.find({
-        relations: ['user'],
-      });
+    const employees = await this.employeeRepo.find({
+      relations: ['user'],
+    });
 
-      const employeesWithoutPassword = [];
-      employees.map((employee: Employee) => {
-        const { password, ...userWithoutPassword } = employee.user;
-        employeesWithoutPassword.push({
-          ...employee,
-          user: userWithoutPassword,
-        });
+    const employeesWithoutPassword = [];
+    employees.map((employee: Employee) => {
+      const { password, ...userWithoutPassword } = employee.user;
+      employeesWithoutPassword.push({
+        ...employee,
+        user: userWithoutPassword,
       });
-      return successHandler('Employees found', employeesWithoutPassword);
-    } catch (error) {
-      return error;
-    }
+    });
+    return successHandler('Employees found', employeesWithoutPassword);
   }
 
   async getEmployeeById(id: string) {
-    try {
-      const employee = await this.employeeRepo.findOne({
-        where: { id: id },
-        relations: ['user'],
-      });
+    const employee = await this.employeeRepo.findOne({
+      where: { id: id },
+      relations: ['user'],
+    });
 
-      if (!employee) return errorhandler(404, 'Employee not found');
+    if (!employee) return errorhandler(404, 'Employee not found');
 
-      const { password, ...user } = employee.user;
+    const { password, ...user } = employee.user;
 
-      return successHandler('Employee found', {
-        ...employee,
-        user: user,
-      });
-    } catch (error) {
-      return error;
-    }
+    return successHandler('Employee found', {
+      ...employee,
+      user: user,
+    });
   }
 
   async updateEmployee(id: string, employeeInfo: UpdateEmployeeDto) {
-    try {
-      const employee = await this.employeeRepo.findOne({
-        where: { id: id },
-        relations: ['user'],
-      });
+    const employee = await this.employeeRepo.findOne({
+      where: { id: id },
+      relations: ['user'],
+    });
 
-      if (!employee) return errorhandler(404, 'Employee not found');
+    if (!employee) return errorhandler(404, 'Employee not found');
 
-      const emailExists = await this.userRepo.findOne({
-        where: { email: employeeInfo.email, id: Not(employee.user.id) },
-      });
+    const emailExists = await this.userRepo.findOne({
+      where: { email: employeeInfo.email, id: Not(employee.user.id) },
+    });
 
-      if (emailExists) return errorhandler(400, 'Email already exists');
+    if (emailExists) return errorhandler(400, 'Email already exists');
 
-      const updatedUser = await this.userRepo.update(employee.user.id, {
-        name: employeeInfo.name,
-        email: employeeInfo.email,
-        role: employeeInfo.role,
-      });
+    const updatedUser = await this.userRepo.update(employee.user.id, {
+      name: employeeInfo.name,
+      email: employeeInfo.email,
+      role: employeeInfo.role,
+    });
 
-      const updatedEmployee = await this.employeeRepo.update(id, {
-        ...employeeInfo,
-      });
+    const updatedEmployee = await this.employeeRepo.update(id, {
+      ...employeeInfo,
+    });
 
-      return successHandler('Employee updated', {
-        ...updatedEmployee,
-        user: updatedUser,
-      });
-    } catch (error) {
-      return error;
-    }
+    return successHandler('Employee updated', {
+      ...updatedEmployee,
+      user: updatedUser,
+    });
   }
 
   async deleteEmployeeById(id: string) {
-    try {
-      const employee = await this.employeeRepo.findOne({
-        where: { id: id },
-        relations: ['user'],
-      });
-      if (!employee) return errorhandler(404, 'Employee not found');
-      await this.employeeRepo.delete(id);
-      await this.userRepo.delete(employee.user.id);
-      return successHandler('Employee deleted', employee);
-    } catch (error) {
-      return error;
-    }
+    const employee = await this.employeeRepo.findOne({
+      where: { id: id },
+      relations: ['user'],
+    });
+    if (!employee) return errorhandler(404, 'Employee not found');
+    await this.employeeRepo.delete(id);
+    await this.userRepo.delete(employee.user.id);
+    return successHandler('Employee deleted', employee);
   }
 }

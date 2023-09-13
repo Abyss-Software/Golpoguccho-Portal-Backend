@@ -1,5 +1,6 @@
 import {
   Body,
+  Catch,
   Controller,
   Delete,
   Get,
@@ -19,6 +20,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
 import { PackagesService } from './packages.service';
 
+@Catch()
 @ApiTags('Packages')
 @Controller('packages')
 export class PackagesController {

@@ -12,19 +12,19 @@ export class Booking extends BaseEntity {
   events: Event[];
 
   @Column()
-  title: string;
+  bookingTitle: string;
 
   @Column()
-  name: string;
+  fullName: string;
 
   @Column()
   email: string;
 
   @Column()
-  contact_primary: string;
+  contactPrimary: string;
 
   @Column({ nullable: true })
-  contact_secondary: string;
+  contactSecondary: string;
 
   @Column()
   address: string;
@@ -35,8 +35,11 @@ export class Booking extends BaseEntity {
   @Column()
   status: string;
 
+  // @Column({ nullable: true })
+  // physicalCopy: boolean;
+
   @Column({ nullable: true })
-  physical_copy: boolean;
+  images: string;
 
   @Column({ nullable: true })
   feedback: string;
@@ -45,38 +48,32 @@ export class Booking extends BaseEntity {
   review: string;
 
   @Column({ nullable: true })
-  additional_information: string;
-
-  @Column({ nullable: true })
-  promo_code: string;
+  promoCode: string;
 
   @Column()
-  total_payment: number;
-
-  @Column({ nullable: true })
-  payment_status: string;
+  totalPayment: number;
 
   @Column()
-  advance_payment: number;
+  advancePayment: number;
 
   @Column({ nullable: true })
-  advance_method: string;
+  advancePaymentMethod: string;
 
   @Column({ nullable: true })
-  advance_date: Date;
+  advancePaymentDate: Date;
 
   @Column({ nullable: true })
-  advance_transaction: string;
+  advanceTransactionId: string;
 
   @Column()
-  due_payment: number;
+  duePayment: number;
 
   @Column({ nullable: true })
-  due_method: string;
+  duePaymentMethod: string;
 
   @Column({ nullable: true })
-  due_date: Date;
+  duePaymentDate: Date;
 
   @Column({ nullable: true })
-  due_transaction: string;
+  dueTransactionId: string;
 }

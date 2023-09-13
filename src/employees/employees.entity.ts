@@ -1,12 +1,20 @@
+import { AssignedEmployees } from 'src/events/assignedEmployees.entity';
 import { User } from 'src/users/users.entity';
 import { BaseEntity } from 'src/utils/base.entity';
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 
 @Entity()
 export class Employee extends BaseEntity {
   @OneToOne(() => User, { cascade: true })
   @JoinColumn()
   user: User;
+
+  @OneToMany(
+    () => AssignedEmployees,
+    (assignedEmployee) => assignedEmployee.employee,
+    { nullable: true },
+  )
+  assignedEvents: AssignedEmployees[];
 
   @Column({ nullable: true })
   avatar: string;
