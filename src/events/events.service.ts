@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Booking } from 'src/bookings/bookings.entity';
 import { Employee } from 'src/employees/employees.entity';
+import { EmailService } from 'src/mail/mail.service';
 import { Category } from 'src/packages/categories.entity';
 import { Package } from 'src/packages/packages.entity';
 import { Repository } from 'typeorm';
@@ -25,6 +26,7 @@ export class EventsService {
     private readonly employeeRepo: Repository<Employee>,
     @InjectRepository(AssignedEmployees)
     private readonly assignedEmployeesRepo: Repository<AssignedEmployees>,
+    private readonly emailService: EmailService,
   ) {}
 
   async createEvent(events: CreateEventDto[], bookingId: string) {
@@ -61,6 +63,7 @@ export class EventsService {
           day_or_evening: event.dayOrEvening,
           dhaka_or_outside: event.dhakaOrOutside,
           additional_info: event.additionalInfo,
+          status: 'PENDING',
         });
 
         return await this.eventRepo.save(newEvent);
@@ -92,6 +95,34 @@ export class EventsService {
     return event;
   }
 
+  async getEventsByEmployeeId(employeeId: string) {
+    console.log(employeeId);
+    const events = await this.assignedEmployeesRepo.find({
+      where: { employeeId: employeeId },
+      relations: [
+        'event',
+        'event.category',
+        'event.package',
+        'event.assignedEmployees',
+        'event.assignedEmployees.employee',
+        'event.assignedEmployees.employee.user',
+      ],
+    });
+
+    return events;
+  }
+
+  async updateAllEventStatus() {
+    const events = await this.eventRepo.find();
+    for (const event of events) {
+      if (event.event_date < new Date()) {
+        event.status = 'COMPLETED';
+        await this.eventRepo.save(event);
+      }
+    }
+    return events;
+  }
+
   async assignEmployeeToEvent(data: assignedEmployeesDto) {
     const event = await this.eventRepo.findOneBy({ id: data.eventId });
     if (!event) return { status: 404, message: 'Event not found' };
@@ -107,6 +138,15 @@ export class EventsService {
         employee: employeeItem,
         position: employee.position,
         payment: employee.payment,
+      });
+
+      this.emailService.sendEventAssignMail({
+        email: employeeItem.user.email,
+        eventTitle: event.title,
+        venue: event.venue,
+        location: event.location,
+        eventDate: new Date(event.event_date).toDateString(),
+        startTime: event.start_time,
       });
 
       await this.assignedEmployeesRepo.save(assignedEmployee);

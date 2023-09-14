@@ -38,6 +38,22 @@ export class EventsController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
+  @SetMetadata('roles', [role.admin, role.manager, role.employee])
+  @ApiBearerAuth()
+  @Get('/employee/:id')
+  async getEventsByEmployeeId(@Param('id') id: string) {
+    return await this.eventsService.getEventsByEmployeeId(id);
+  }
+
+  @UseGuards(JwtAuthGuard, UserRolesGuard)
+  @SetMetadata('roles', [role.admin, role.manager])
+  @ApiBearerAuth()
+  @Post('update-status')
+  async updateEventStatus() {
+    return await this.eventsService.updateAllEventStatus();
+  }
+
+  @UseGuards(JwtAuthGuard, UserRolesGuard)
   @SetMetadata('roles', [role.admin, role.manager])
   @ApiBearerAuth()
   @Post('assign-employees')

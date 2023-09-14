@@ -1,97 +1,57 @@
-import { Injectable } from '@nestjs/common';
-import { EmailParams, MailerSend, Recipient, Sender } from 'mailersend';
-const Mailjet = require('node-mailjet');
 const Brevo = require('@getbrevo/brevo');
 
+import { Injectable } from '@nestjs/common';
+import { errorhandler, successHandler } from 'src/utils/response.handler';
+
 @Injectable()
-export class MailService {
-  private mailjet: any;
-  mailerSend: MailerSend;
+export class EmailService {
   brevo: any;
 
   constructor() {
-    this.mailjet = new Mailjet({
-      apiKey: process.env.MAILJET_API_KEY,
-      apiSecret: process.env.MAILJET_SECRET_KEY,
-    });
-    this.mailerSend = new MailerSend({
-      apiKey: process.env.MAILERSEND_API_KEY,
-    });
     this.brevo = Brevo.ApiClient.instance;
+    const apiKey = this.brevo.authentications['api-key'];
+    apiKey.apiKey = process.env.BREVO_API_KEY;
   }
 
-  async sendBookingConfirmation(email: string, bookingDetails: any) {
-    const request = this.mailjet.post('send', { version: 'v3.1' }).request({
-      Messages: [
-        {
-          From: {
-            Email: 'support@golpogucchophotography.com',
-            Name: 'Golpoguccho Photography',
-          },
-          To: [
-            {
-              Email: email,
-              Name: 'passenger 1',
-            },
-          ],
-          Subject: 'Your email flight plan!',
-          TextPart:
-            'Dear passenger 1, welcome to Mailjet! May the delivery force be with you!',
-          HTMLPart:
-            '<h3>Dear passenger 1, welcome to <a href="https://www.mailjet.com/">Mailjet</a>!</h3><br />May the delivery force be with you!',
-        },
-      ],
-    });
+  async sendEventAssignMail(emailConfig: IAssignMailProps) {
+    const tranEmailApi = new Brevo.TransactionalEmailsApi();
+    const sender = {
+      email: 'support@golpogucchophotography.com',
+      name: 'GolpoGuccho Photography',
+    };
 
-    console.log(request);
-    request
-      .then((result) => {
-        console.log(result);
-        console.log(result.body);
-      })
-      .catch((err) => {
-        console.log('err', err);
-        console.log(err.statusCode);
-      });
-  }
-
-  async sendBookingConfirmationMailerSend(email: string, bookingDetails: any) {
-    const sentFrom = new Sender(
-      'support@golpogucchophotography.com',
-      'Golpoguccho Support',
-    );
-
-    const recipients = [new Recipient(email, 'Client Mr')];
-
-    const personalization = [
+    const receivers = [
       {
-        email: email,
-        data: {
-          name: 'Client Mr',
-          account_name: 'Rando',
-        },
+        email: emailConfig.email,
       },
     ];
 
-    const emailParams = new EmailParams()
-      .setFrom(sentFrom)
-      .setTo(recipients)
-      .setReplyTo(sentFrom)
-      .setSubject('This is a test Mail from MailerSend')
-      .setTemplateId('neqvygmrw65l0p7w')
-      .setPersonalization(personalization);
-
-    const mailSending = await this.mailerSend.email
-      .send(emailParams)
-      .then((result) => {
-        console.log(result);
-        console.log(result.body);
-      })
-      .catch((err) => {
-        console.log('err', err);
-        console.log(err.statusCode);
+    try {
+      await tranEmailApi.sendTransacEmail({
+        sender,
+        to: receivers,
+        templateId: 1,
+        params: {
+          eventTitle: emailConfig.eventTitle,
+          venue: emailConfig.venue,
+          location: emailConfig.location,
+          eventDate: emailConfig.eventDate,
+          startTime: emailConfig.startTime,
+        },
       });
 
-    console.log(mailSending);
+      return successHandler('TestMail Sent Successfully', {});
+    } catch (error) {
+      return errorhandler(400, JSON.stringify(error.message));
+    }
   }
+}
+
+interface IAssignMailProps {
+  email: string;
+  eventTitle: string;
+  venue: string;
+  location: string;
+  eventDate: string;
+  startTime: string;
 }

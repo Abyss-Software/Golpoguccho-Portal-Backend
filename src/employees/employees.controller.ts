@@ -29,7 +29,7 @@ export class EmployeesController {
   @SetMetadata('roles', [role.admin])
   @ApiBearerAuth()
   @Post('create-employee')
-  async createPackage(@Body() createEmployeeDto: CreateEmployeeDto) {
+  async createEmployee(@Body() createEmployeeDto: CreateEmployeeDto) {
     return await this.employeesService.createEmployee(createEmployeeDto);
   }
 

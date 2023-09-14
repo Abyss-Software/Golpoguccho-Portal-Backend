@@ -52,6 +52,9 @@ export class Event extends BaseEntity {
   @Column()
   dhaka_or_outside: string;
 
-  @Column()
+  @Column({ nullable: true })
   additional_info: string;
+
+  @Column({ nullable: true })
+  status: string;
 }

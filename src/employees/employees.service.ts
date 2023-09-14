@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from 'src/auth/auth.service';
+import { EmailService } from 'src/mail/mail.service';
 import { User } from 'src/users/users.entity';
 import { role } from 'src/utils/constants/role';
 import { CloudinaryUpload } from 'src/utils/image-upload/coudinary-upload';
@@ -19,6 +20,7 @@ export class EmployeesService {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     private readonly authService: AuthService,
+    private readonly emailService: EmailService,
   ) {}
 
   async createEmployee(employeeInfo: CreateEmployeeDto) {
@@ -59,7 +61,7 @@ export class EmployeesService {
   async getEmployeeByUserId(id: string) {
     const employee = await this.employeeRepo.findOne({
       where: { user: { id: id } },
-      relations: ['user', 'assignedEvents', 'assignedEvents.event'],
+      relations: ['user'],
     });
 
     if (!employee) return errorhandler(404, 'Employee not found');
@@ -78,6 +80,8 @@ export class EmployeesService {
       relations: ['user'],
     });
 
+    console.log(employee);
+
     if (!employee) return errorhandler(404, 'Employee not found');
 
     const emailExists = await this.userRepo.findOne({
@@ -93,7 +97,14 @@ export class EmployeesService {
     });
 
     const updatedEmployee = await this.employeeRepo.update(id, {
-      ...employeeInfo,
+      address: employeeInfo.address,
+      contactPrimary: employeeInfo.contactPrimary,
+      contactSecondary: employeeInfo.contactSecondary,
+      position: employeeInfo.position,
+      verificationType: employeeInfo.verificationType,
+      verificationId: employeeInfo.verificationId,
+      baseSalary: employeeInfo.baseSalary,
+      monthlySalary: employeeInfo.monthlySalary,
     });
 
     return successHandler('Employee updated', {
@@ -119,20 +130,22 @@ export class EmployeesService {
       email: employeeInfo.email,
     });
 
+    let secure_url = employee.avatar ? employee.avatar : null;
+
     if (employeeInfo.avatar) {
       const imageUpload = await CloudinaryUpload(
         employeeInfo.avatar,
         'categories',
         employeeInfo.name,
       );
-      console.log(imageUpload);
+      secure_url = imageUpload.secure_url;
     }
 
     const updatedEmployee = await this.employeeRepo.update(id, {
       address: employeeInfo.address,
       contactPrimary: employeeInfo.contactPrimary,
       contactSecondary: employeeInfo.contactSecondary,
-      avatar: employeeInfo.avatar,
+      avatar: secure_url,
     });
 
     return successHandler('Profile updated', {

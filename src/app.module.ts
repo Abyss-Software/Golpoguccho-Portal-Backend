@@ -8,11 +8,11 @@ import { BookingsModule } from './bookings/bookings.module';
 import { EmployeesModule } from './employees/employees.module';
 import { EventsModule } from './events/events.module';
 import { ExceptionsFiltersModule } from './exceptions-filters/exceptions-fitlers.module';
+import { EmailService } from './mail/mail.service';
 import { PackagesModule } from './packages/packages.module';
 import { PaymentModule } from './payment/payment.module';
 import { PromoModule } from './promo/promo.module';
 import { UsersModule } from './users/users.module';
-import { MailService } from './mail/mail.service';
 
 @Module({
   imports: [
@@ -35,6 +35,6 @@ import { MailService } from './mail/mail.service';
     ExceptionsFiltersModule,
   ],
   controllers: [AppController],
-  providers: [AppService, MailService],
+  providers: [AppService, EmailService],
 })
 export class AppModule {}

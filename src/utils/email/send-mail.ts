@@ -43,3 +43,36 @@ export const sendMailTest = async (emailConfig: any) => {
     return errorhandler(400, JSON.stringify(error.message));
   }
 };
+
+export const sendTemplateMail = async (emailConfig: any) => {
+  const receivers = [
+    {
+      email: emailConfig.email,
+    },
+  ];
+
+  try {
+    const sending = await tranEmailApi
+      .sendTransacEmail({
+        sender,
+        to: receivers,
+        subject: 'Test template email from Brevo',
+        templateId: 1,
+        params: {
+          eventTitle: 'random string',
+        },
+      })
+      .then((result) => {
+        console.log(result);
+        console.log(result.body);
+      })
+      .catch((err) => {
+        console.log('err', err);
+        console.log(err.statusCode);
+      });
+    console.log(sending);
+    return successHandler('TestMail Sent Successfully', {});
+  } catch (error) {
+    return errorhandler(400, JSON.stringify(error.message));
+  }
+};
