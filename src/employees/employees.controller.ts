@@ -16,6 +16,7 @@ import { UserRolesGuard } from 'src/utils/auth/guards/roles.guard';
 import { role } from 'src/utils/constants/role';
 import { CreateEmployeeDto } from './dto/createEmployee.dto';
 import { UpdateEmployeeDto } from './dto/updateEmployee.dto';
+import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { EmployeesService } from './employees.service';
 
 @Catch()
@@ -42,12 +43,12 @@ export class EmployeesController {
 
   @ApiBearerAuth()
   @Get('/:id')
-  async getEmployeeById(@Param('id') id: string) {
-    return await this.employeesService.getEmployeeById(id);
+  async getEmployeeByUserId(@Param('id') id: string) {
+    return await this.employeesService.getEmployeeByUserId(id);
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin, role.employee])
+  @SetMetadata('roles', [role.admin, role.manager])
   @ApiBearerAuth()
   @Patch('/:id')
   async updateEmployeeById(
@@ -55,6 +56,17 @@ export class EmployeesController {
     @Body() updateEmployeeDto: UpdateEmployeeDto,
   ) {
     return await this.employeesService.updateEmployee(id, updateEmployeeDto);
+  }
+
+  @UseGuards(JwtAuthGuard, UserRolesGuard)
+  @SetMetadata('roles', [role.employee])
+  @ApiBearerAuth()
+  @Patch('/profile/:id')
+  async updateProfile(
+    @Param('id') id: string,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    return await this.employeesService.updateProfile(id, updateProfileDto);
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
