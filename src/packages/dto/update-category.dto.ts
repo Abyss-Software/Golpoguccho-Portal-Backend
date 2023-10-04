@@ -6,7 +6,7 @@ export class UpdateCategoryDto {
   @ApiProperty({ example: 'Muslim Wedding' })
   @IsString()
   @IsOptional()
-  name: string;
+  title: string;
 
   @ApiProperty({
     example:

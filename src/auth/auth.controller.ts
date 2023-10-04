@@ -1,38 +1,34 @@
 import {
   Body,
+  Catch,
   Controller,
   Get,
   Post,
   Request,
   Response,
-  SetMetadata,
-  UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
-import { CreateUserDto } from 'src/users/dtos/create-user.dto';
-import { JwtAuthGuard } from 'src/utils/auth/guards/jwt-auth.guard';
-import { UserRolesGuard } from 'src/utils/auth/guards/roles.guard';
+import { SignUpUserDto } from './dto/signup-user.dto';
+import { SocialLoginDto } from './dto/social-login.dto';
 
+@Catch()
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', ['admin'])
-  @ApiBearerAuth()
   @Post('/signup')
-  async signUp(@Body() signUpUserDto: CreateUserDto) {
+  async signUp(@Body() signUpUserDto: SignUpUserDto) {
     return await this.authService.signUp(signUpUserDto);
   }
 
   @Post('/login')
   async login(
-    @Request() req,
+    @Request() req: any,
     @Body() loginInfo: LoginUserDto,
-    @Response({ passthrough: true }) res,
+    @Response({ passthrough: true }) res: any,
   ) {
     const result = await this.authService.login(loginInfo);
 
@@ -48,7 +44,10 @@ export class AuthController {
   }
 
   @Get('/refresh')
-  async refreshTokens(@Request() req, @Response({ passthrough: true }) res) {
+  async refreshTokens(
+    @Request() req: any,
+    @Response({ passthrough: true }) res: any,
+  ) {
     return await this.authService.refreshTokens(
       res,
       req,
@@ -57,7 +56,16 @@ export class AuthController {
   }
 
   @Get('/logout')
-  async logout(@Request() req, @Response({ passthrough: true }) res) {
+  async logout(@Request() req: any, @Response({ passthrough: true }) res: any) {
     return await this.authService.logout(req, res);
+  }
+
+  @Post('social-login')
+  async socialLogin(
+    @Request() request,
+    @Body() socialLoginDto: SocialLoginDto,
+    @Response({ passthrough: true }) res,
+  ) {
+    return await this.authService.socialLogin(request, socialLoginDto, res);
   }
 }

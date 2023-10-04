@@ -1,28 +1,29 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Event } from 'src/events/events.entity';
+import { BaseEntity } from 'src/utils/base.entity';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { Package } from './packages.entity';
 
 @Entity()
-export class Category {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Category extends BaseEntity {
   @Column()
-  name: string;
-
-  @Column({ nullable: true })
-  image: string;
+  title: string;
 
   @Column()
   description: string;
+
+  @Column({ nullable: true })
+  image: string;
 
   @OneToMany(() => Package, (packageItem) => packageItem.category, {
     nullable: true,
   })
   packages: Package[];
 
-  @Column()
-  status: string;
+  @OneToMany(() => Event, (event) => event.category, {
+    nullable: true,
+  })
+  events: Event[];
 
   @Column()
-  created_at: Date;
+  status: string;
 }

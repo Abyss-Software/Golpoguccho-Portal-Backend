@@ -1,35 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './users.entity';
+import * as bcrypt from 'bcrypt';
+import { errorhandler, successHandler } from 'src/utils/response.handler';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dtos/create-user.dto';
-import * as bcrypt from 'bcrypt';
+import { User } from './users.entity';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
   async createUser(createUserDto: CreateUserDto) {
-    try {
-      const salt = await bcrypt.genSalt(10);
-      const encPassword = await bcrypt.hash(createUserDto.password, salt);
-      const user = this.userRepo.create({
-        ...createUserDto,
-        password: encPassword,
-        created_at: new Date(),
-      });
-      await this.userRepo.save(user);
-      return user;
-    } catch (error) {
-      console.log(error);
-      return error;
-    }
+    const salt = await bcrypt.genSalt(10);
+    const encPassword = await bcrypt.hash(createUserDto.password, salt);
+
+    const user = this.userRepo.create({
+      ...createUserDto,
+      password: encPassword,
+    });
+
+    await this.userRepo.save(user);
+
+    return user;
   }
 
-  async findUser(id: number) {
+  async findUser(id: string) {
     const user = await this.userRepo.findOneBy({ id: id });
-    if (!user) return 'User not found';
-    return user;
+    if (!user) return errorhandler(404, 'User not found');
+    const { password, ...response } = user;
+    return successHandler('User found', response);
   }
 
   async findUserByEmail(email: string) {
@@ -38,19 +37,30 @@ export class UsersService {
   }
 
   async findAllUsers() {
-    return await this.userRepo.find();
+    const users = await this.userRepo.find();
+    if (!users.length) return errorhandler(404, 'User not found');
+    const usersWithoutPassword = [];
+
+    users.map((user) => {
+      const { password, ...userWithoutPassword } = user;
+      usersWithoutPassword.push(userWithoutPassword);
+    });
+    return successHandler('Users found', usersWithoutPassword);
   }
 
-  async updateUser(id: number, attributes: Partial<User>) {
+  async updateUser(id: string, attributes: Partial<User>) {
     const user = await this.userRepo.findOneBy({ id: id });
-    if (!user) throw new Error('User not found');
+    if (!user) return errorhandler(404, 'User not found');
     Object.assign(user, attributes);
-    return await this.userRepo.save(user);
+    const updatedUser = await this.userRepo.save(user);
+    const { password, ...response } = updatedUser;
+    return successHandler('User updated successfully', response);
   }
 
-  async deleteUser(id: number) {
+  async deleteUser(id: string) {
     const user = await this.userRepo.findOneBy({ id: id });
-    if (!user) throw new Error('User not found');
-    return await this.userRepo.remove(user);
+    if (!user) errorhandler(404, 'User not found');
+    await this.userRepo.remove(user);
+    return successHandler('User deleted successfully', null);
   }
 }

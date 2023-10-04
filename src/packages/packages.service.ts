@@ -1,18 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { status } from 'src/utils/constants/status';
+import { CloudinaryUpload } from 'src/utils/image-upload/coudinary-upload';
+import { errorhandler, successHandler } from 'src/utils/response.handler';
+import { Repository } from 'typeorm';
 import { Category } from './categories.entity';
-import { In, Repository } from 'typeorm';
-import { Package } from './packages.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { CreatePackageDto } from './dto/create-package.dto';
-import { CloudinaryUpload } from 'src/utils/image-upload/coudinary-upload';
-import {
-  errorhandler,
-  notfound,
-  successHandler,
-} from 'src/utils/response.handler';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { UpdatePackageDto } from './dto/update-package.dto';
+import { Package } from './packages.entity';
 
 @Injectable()
 export class PackagesService {
@@ -24,149 +21,116 @@ export class PackagesService {
   ) {}
 
   async createCategory(createCategoryDto: CreateCategoryDto) {
-    try {
-      const existingCategory = await this.categoryRepo.findOneBy({
-        name: createCategoryDto.name,
-      });
-      if (existingCategory)
-        return errorhandler(400, 'Category with this name already exists');
+    const existingCategory = await this.categoryRepo.findOneBy({
+      title: createCategoryDto.title,
+    });
+    if (existingCategory)
+      return errorhandler(400, 'Category with this name already exists');
 
-      const imageUpload = await CloudinaryUpload(
-        createCategoryDto.image,
-        'categories',
-        createCategoryDto.name,
-      );
-      const category = this.categoryRepo.create({
-        ...createCategoryDto,
-        image: imageUpload.secure_url,
-        created_at: new Date(),
-      });
-      await this.categoryRepo.save(category);
-      return successHandler('Category created successfully', category);
-    } catch (error) {
-      console.log(error);
-      return errorhandler(error.status, error.message);
-    }
+    const imageUpload = await CloudinaryUpload(
+      createCategoryDto.image,
+      'categories',
+      createCategoryDto.title,
+    );
+
+    const category = this.categoryRepo.create({
+      ...createCategoryDto,
+      image: imageUpload.secure_url,
+      status: status.active,
+    });
+
+    await this.categoryRepo.save(category);
+    return successHandler('Category created successfully', category);
   }
 
   async createPackage(createPackageDto: CreatePackageDto) {
-    try {
-      const existingPackage = await this.packageRepo.findOneBy({
-        name: createPackageDto.name,
-      });
-      if (existingPackage)
-        return errorhandler(400, 'Package with this name already exists');
+    const existingPackage = await this.packageRepo.findOneBy({
+      title: createPackageDto.title,
+    });
+    if (existingPackage)
+      return errorhandler(400, 'Package with this name already exists');
 
-      const imageUpload = await CloudinaryUpload(
-        createPackageDto.image,
-        'packages',
-        createPackageDto.name,
-      );
-      const category = await this.categoryRepo.findOneBy({
-        id: createPackageDto.categoryId,
-      });
-      const packageData = this.packageRepo.create({
-        ...createPackageDto,
-        image: imageUpload.secure_url,
-        category: category,
-        created_at: new Date(),
-      });
-      await this.packageRepo.save(packageData);
+    const imageUpload = await CloudinaryUpload(
+      createPackageDto.image,
+      'packages',
+      createPackageDto.title,
+    );
+    const category = await this.categoryRepo.findOneBy({
+      id: createPackageDto.categoryId,
+    });
+    const packageData = this.packageRepo.create({
+      ...createPackageDto,
+      image: imageUpload.secure_url,
+      category: category,
+      status: status.active,
+    });
+    await this.packageRepo.save(packageData);
 
-      return successHandler('Package created successfully', packageData);
-    } catch (error) {
-      return errorhandler(error.status, error.message);
-    }
+    return successHandler('Package created successfully', packageData);
   }
 
   async getAllCategories() {
-    try {
-      const categories = await this.categoryRepo.find();
-      return successHandler('Categories fetched successfully', categories);
-    } catch (error) {
-      return errorhandler(error.status, error.message);
-    }
+    const categories = await this.categoryRepo.find({
+      relations: ['packages'],
+    });
+
+    return successHandler('Categories fetched successfully', categories);
   }
 
   async getAllPackages() {
-    try {
-      const packages = await this.packageRepo.find();
-      return successHandler('Packages fetched successfully', packages);
-    } catch (error) {
-      return errorhandler(error.status, error.message);
-    }
+    const packages = await this.packageRepo.find();
+    return successHandler('Packages fetched successfully', packages);
   }
 
-  async getCategoryById(id: number) {
-    try {
-      const categoryData = await this.categoryRepo.findOne({
-        where: { id: id },
-        relations: ['packages'],
-      });
-      if (!categoryData) return notfound('Category not found');
-      return successHandler('Category fetched successfully', categoryData);
-    } catch (error) {
-      return errorhandler(error.status, error.message);
-    }
+  async getCategoryById(id: string) {
+    const categoryData = await this.categoryRepo.findOne({
+      where: { id: id },
+      relations: ['packages'],
+    });
+    if (!categoryData) return errorhandler(404, 'Category not found');
+    return successHandler('Category fetched successfully', categoryData);
   }
 
-  async getPackageById(id: number) {
-    try {
-      const packageData = await this.packageRepo.findOneBy({ id: id });
-      if (!packageData) return notfound('Category not found');
-      return successHandler('Package fetched successfully', packageData);
-    } catch (error) {
-      return errorhandler(error.status, error.message);
-    }
+  async getPackageById(id: string) {
+    const packageData = await this.packageRepo.findOneBy({ id: id });
+    if (!packageData) return errorhandler(404, 'Category not found');
+    return successHandler('Package fetched successfully', packageData);
   }
 
-  async updateCategory(id: number, attributes: UpdateCategoryDto) {
-    try {
-      const categoryData = await this.categoryRepo.findOneBy({ id: id });
-      if (!categoryData) return notfound('Category not found');
+  async updateCategory(id: string, attributes: UpdateCategoryDto) {
+    const categoryData = await this.categoryRepo.findOneBy({ id: id });
+    if (!categoryData) return errorhandler(404, 'Category not found');
 
-      Object.assign(categoryData, attributes);
-      await this.categoryRepo.save(categoryData);
-      return successHandler('Category updated successfully', categoryData);
-    } catch (error) {
-      return errorhandler(error.status, error.message);
-    }
+    Object.assign(categoryData, attributes);
+    await this.categoryRepo.save(categoryData);
+    return successHandler('Category updated successfully', categoryData);
   }
 
-  async updatePackage(id: number, attributes: Partial<UpdatePackageDto>) {
-    try {
-      const packageData = await this.packageRepo.findOneBy({ id: id });
-      if (!packageData) return notfound('Package not found');
+  async updatePackage(id: string, attributes: Partial<UpdatePackageDto>) {
+    const packageData = await this.packageRepo.findOneBy({ id: id });
+    if (!packageData) return errorhandler(404, 'Package not found');
 
-      Object.assign(packageData, attributes);
-      await this.packageRepo.save(packageData);
-      return successHandler('Package updated successfully', packageData);
-    } catch (error) {
-      return errorhandler(error.status, error.message);
-    }
+    Object.assign(packageData, attributes);
+    await this.packageRepo.save(packageData);
+    return successHandler('Package updated successfully', packageData);
   }
 
-  async deleteCategory(id: number) {
-    try {
-      const categoryData = await this.categoryRepo.findOneBy({ id: id });
-      if (!categoryData) return notfound('Category not found');
+  async deleteCategory(id: string) {
+    const categoryData = await this.categoryRepo.findOneBy({ id: id });
+    if (!categoryData) return errorhandler(404, 'Category not found');
 
-      await this.categoryRepo.delete(categoryData);
-      return successHandler('Category deleted successfully', {});
-    } catch (error) {
-      return errorhandler(error.status, error.message);
-    }
+    const del = await this.categoryRepo.remove(categoryData);
+
+    return successHandler('Category deleted successfully', {});
   }
 
-  async deletePackage(id: number) {
-    try {
-      const packageData = await this.packageRepo.findOneBy({ id: id });
-      if (!packageData) return notfound('Package not found');
+  async deletePackage(id: string) {
+    const packageData = await this.packageRepo.findOneBy({ id: id });
 
-      await this.packageRepo.delete(packageData);
-      return successHandler('Package deleted successfully', {});
-    } catch (error) {
-      return errorhandler(error.status, error.message);
-    }
+    if (!packageData) return errorhandler(404, 'Package not found');
+
+    const wit = await this.packageRepo.remove(packageData);
+
+    return successHandler('Package deleted successfully', {});
   }
 }

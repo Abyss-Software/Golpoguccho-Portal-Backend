@@ -1,16 +1,18 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Event } from 'src/events/events.entity';
+import { BaseEntity } from 'src/utils/base.entity';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { Category } from './categories.entity';
 
 @Entity()
-export class Package {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Package extends BaseEntity {
   @Column()
-  name: string;
+  title: string;
 
   @ManyToOne(() => Category, (category) => category.packages)
   category: Category;
+
+  @OneToMany(() => Event, (event) => event.package, { nullable: true })
+  events: Event[];
 
   @Column()
   price: number;
@@ -23,7 +25,4 @@ export class Package {
 
   @Column()
   status: string;
-
-  @Column()
-  created_at: Date;
 }

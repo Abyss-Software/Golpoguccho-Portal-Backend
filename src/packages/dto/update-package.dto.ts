@@ -5,7 +5,7 @@ import { status } from 'src/utils/constants/status';
 export class UpdatePackageDto {
   @ApiProperty({ example: 'Muslim1' })
   @IsOptional()
-  name: string;
+  title: string;
 
   @ApiProperty({ example: '1000' })
   @IsOptional()
