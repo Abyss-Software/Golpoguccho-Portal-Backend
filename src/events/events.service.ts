@@ -96,7 +96,6 @@ export class EventsService {
   }
 
   async getEventsByEmployeeId(employeeId: string) {
-    console.log(employeeId);
     const events = await this.assignedEmployeesRepo.find({
       where: { employeeId: employeeId },
       relations: [
@@ -128,8 +127,9 @@ export class EventsService {
     if (!event) return { status: 404, message: 'Event not found' };
 
     data.assignedEmployees.map(async (employee) => {
-      const employeeItem = await this.employeeRepo.findOneBy({
-        id: employee.employeeId,
+      const employeeItem = await this.employeeRepo.findOne({
+        where: { id: employee.employeeId },
+        relations: ['user'],
       });
       if (!employeeItem) return { status: 404, message: 'Employee not found' };
 

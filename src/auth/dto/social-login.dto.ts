@@ -8,9 +8,5 @@ export class SocialLoginDto {
 
   @ApiProperty({ example: 'client' })
   @IsString()
-  firstName: string;
-
-  @ApiProperty({ example: 'client' })
-  @IsString()
-  lastName: string;
+  name: string;
 }

@@ -27,7 +27,7 @@ export class PackagesController {
   constructor(private readonly packagesService: PackagesService) {}
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin, role.manager])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Post('create-category')
   async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
@@ -35,7 +35,7 @@ export class PackagesController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin, role.manager])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Post('create-package')
   async createPackage(@Body() createPackageDto: CreatePackageDto) {
@@ -63,7 +63,7 @@ export class PackagesController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin, role.manager])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Patch('category/:id')
   async updateCategory(
@@ -74,7 +74,7 @@ export class PackagesController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin, role.manager])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Patch('/:id')
   async updatePackage(
@@ -85,7 +85,7 @@ export class PackagesController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin, role.manager])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Delete('category/:id')
   async deleteCategory(@Param('id') id: string) {
@@ -93,7 +93,7 @@ export class PackagesController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin, role.manager])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Delete('/:id')
   async deletePackage(@Param('id') id: string) {

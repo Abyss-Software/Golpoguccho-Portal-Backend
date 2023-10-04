@@ -2,6 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from 'src/events/events.entity';
 import { EventsService } from 'src/events/events.service';
+import { FinanceService } from 'src/finance/finance.service';
+import {
+  EmailService,
+  IBookingCompleteMailProps,
+  IBookingConfirmMailProps,
+  ICompletePaymentMailProps,
+} from 'src/mail/mail.service';
 import { User } from 'src/users/users.entity';
 import { bookingStatus } from 'src/utils/constants/bookingStatus';
 import { errorhandler, successHandler } from 'src/utils/response.handler';
@@ -14,6 +21,8 @@ import { DuePaymentDto } from './dto/due-payment.dto';
 export class BookingsService {
   constructor(
     private readonly eventsService: EventsService,
+    private readonly financeService: FinanceService,
+    private readonly emailService: EmailService,
     @InjectRepository(Booking)
     private readonly bookingRepo: Repository<Booking>,
     @InjectRepository(Event)
@@ -49,6 +58,29 @@ export class BookingsService {
       duePayment: createBookingDto.duePayment,
     });
 
+    const adminsAndMods = await this.userRepo.find({
+      where: [{ role: 'ADMIN' }, { role: 'MODERATOR' }],
+    });
+
+    const emailConfig = {
+      bookingTitle: booking.bookingTitle,
+      clientName: booking.fullName,
+      eventCount: createBookingDto.events.length,
+      contactPrimary: booking.contactPrimary,
+      contactSecondary: booking.contactSecondary,
+      bookingDate: new Date().toDateString(),
+      advancePayment: booking.advancePayment,
+      advancePaymentMethod: booking.advancePaymentMethod,
+      advanceTransactionId: booking.advanceTransactionId,
+    };
+
+    adminsAndMods.forEach((user) => {
+      this.emailService.sendNewBookingEmail({
+        ...emailConfig,
+        email: user.email,
+      });
+    });
+
     const bookingResult = await this.bookingRepo.save(booking);
 
     const eventResult = await this.eventsService.createEvent(
@@ -76,14 +108,6 @@ export class BookingsService {
       where: { id: bookingId },
       relations: ['events', 'events.category', 'events.package'],
     });
-    // .createQueryBuilder('booking')
-    // .innerJoinAndSelect('booking.events', 'events')
-    // .leftJoinAndSelect('events.category', 'categories')
-    // .leftJoinAndSelect('events.package', 'packages')
-    // .leftJoinAndSelect('booking.client', 'users')
-    // .where('booking.id=:id')
-    // .setParameter('id', bookingId)
-    // .getOne();
 
     console.log(booking);
 
@@ -115,20 +139,99 @@ export class BookingsService {
 
     const bookingResult = await this.bookingRepo.save(booking);
 
+    const emailConfig = {
+      bookingTitle: booking.bookingTitle,
+      clientName: booking.fullName,
+      eventCount: booking.events.length,
+      contactPrimary: booking.contactPrimary,
+      contactSecondary: booking.contactSecondary,
+      bookingDate: new Date().toDateString(),
+      duePayment: booking.duePayment,
+      duePaymentMethod: booking.duePaymentMethod,
+      dueTransactionId: booking.dueTransactionId,
+    };
+
+    const adminsAndMods = await this.userRepo.find({
+      where: [{ role: 'ADMIN' }, { role: 'MODERATOR' }],
+    });
+
+    adminsAndMods.forEach((user) => {
+      this.emailService.sendDuePaymentEmail({
+        ...emailConfig,
+        email: user.email,
+      });
+    });
+
     return successHandler('Due Payment Made Successfully!', bookingResult);
   }
 
   async changeStatus(statusUpdateDto: { bookingId: string; status: string }) {
     const booking = await this.bookingRepo.findOne({
       where: { id: statusUpdateDto.bookingId },
-      relations: ['events', 'events.category', 'events.package'],
+      relations: [
+        'events',
+        'events.assignedEmployees',
+        'events.assignedEmployees.employee',
+        'events.assignedEmployees.employee.user',
+      ],
     });
+
+    console.log(booking);
 
     if (!booking) return errorhandler(404, 'Booking not found');
 
     booking.status = statusUpdateDto.status;
 
     const bookingResult = await this.bookingRepo.save(booking);
+
+    if (statusUpdateDto.status === bookingStatus.confirmed) {
+      this.financeService.createFinanceRecord({
+        title: bookingResult.bookingTitle + ' Advance Payment',
+        type: 'INCOME',
+        transactionDate: bookingResult.createdAt,
+        amount: booking.advancePayment,
+        category: 'Booking Advance Payment',
+        medium: booking.advancePaymentMethod,
+        trxId: booking.advanceTransactionId,
+      });
+
+      const emailConfig: IBookingConfirmMailProps = {
+        email: booking.email,
+        bookingTitle: booking.bookingTitle,
+        clientName: booking.fullName,
+        eventCount: booking.events.length,
+        eventDates: booking.events
+          .map((event) => event.event_date.toDateString())
+          .join(', '),
+        packages: booking.events.map((event) => event.package.title).join(', '),
+        totalPayment: booking.totalPayment,
+        advancePayment: booking.advancePayment,
+        advancePaymentMethod: booking.advancePaymentMethod,
+        advancePaymentInfo: booking.advanceTransactionId,
+      };
+
+      this.emailService.sendBookingConfirmEmail(emailConfig);
+    } else if (statusUpdateDto.status === bookingStatus.completed) {
+      this.financeService.createFinanceRecord({
+        title: bookingResult.bookingTitle + ' Due Payment',
+        type: 'INCOME',
+        transactionDate: bookingResult.createdAt,
+        amount: booking.duePayment,
+        category: 'Booking Due Payment',
+        medium: booking.duePaymentMethod,
+        trxId: booking.dueTransactionId,
+      });
+
+      const emailConfig: IBookingCompleteMailProps = {
+        email: booking.email,
+        totalPayment: booking.totalPayment,
+        duePayment: booking.duePayment,
+        duePaymentMethod: booking.duePaymentMethod,
+        duePaymentInfo: booking.dueTransactionId,
+      };
+
+      this.emailService.sendBookingCompleteEmail(emailConfig);
+    }
 
     return successHandler(
       'Booking Status Updated Successfully!',
@@ -147,6 +250,16 @@ export class BookingsService {
     booking.images = libraryLinkDto.link;
 
     const bookingResult = await this.bookingRepo.save(booking);
+
+    const emailConfig: ICompletePaymentMailProps = {
+      email: booking.email,
+      bookingTitle: booking.bookingTitle,
+      totalPayment: booking.totalPayment,
+      advancePayment: booking.advancePayment,
+      duePayment: booking.duePayment,
+    };
+
+    this.emailService.sendCompletePaymentEmail(emailConfig);
 
     return successHandler('Library Link Updated Successfully!', bookingResult);
   }

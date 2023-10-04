@@ -42,4 +42,7 @@ export class Employee extends BaseEntity {
 
   @Column({ nullable: true })
   monthlySalary: number;
+
+  @Column({ nullable: true, default: 0 })
+  paid: number;
 }

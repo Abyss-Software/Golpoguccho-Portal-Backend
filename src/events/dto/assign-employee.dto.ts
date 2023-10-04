@@ -18,5 +18,5 @@ export class assignedEmployeesDto {
 export class assignedEmployees {
   employeeId: string;
   position: string;
-  payment: number;
+  payment?: number;
 }

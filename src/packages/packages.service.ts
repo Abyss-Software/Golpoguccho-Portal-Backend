@@ -126,9 +126,11 @@ export class PackagesService {
 
   async deletePackage(id: string) {
     const packageData = await this.packageRepo.findOneBy({ id: id });
+
     if (!packageData) return errorhandler(404, 'Package not found');
 
-    await this.packageRepo.delete(packageData);
+    const wit = await this.packageRepo.remove(packageData);
+
     return successHandler('Package deleted successfully', {});
   }
 }

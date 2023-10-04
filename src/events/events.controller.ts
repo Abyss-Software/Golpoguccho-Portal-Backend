@@ -22,7 +22,7 @@ export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin, role.manager])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Get('')
   async getEvents() {
@@ -30,7 +30,7 @@ export class EventsController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin, role.manager])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Get('/:id')
   async getEventById(@Param('id') id: string) {
@@ -38,7 +38,7 @@ export class EventsController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin, role.manager, role.employee])
+  @SetMetadata('roles', [role.admin, role.moderator, role.employee])
   @ApiBearerAuth()
   @Get('/employee/:id')
   async getEventsByEmployeeId(@Param('id') id: string) {
@@ -46,7 +46,7 @@ export class EventsController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin, role.manager])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Post('update-status')
   async updateEventStatus() {
@@ -54,7 +54,7 @@ export class EventsController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin, role.manager])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Post('assign-employees')
   async assignEmployee(@Body() assignEmployeeDto: assignedEmployeesDto) {

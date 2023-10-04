@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from 'src/auth/auth.service';
+import { FinanceService } from 'src/finance/finance.service';
 import { EmailService } from 'src/mail/mail.service';
 import { User } from 'src/users/users.entity';
-import { role } from 'src/utils/constants/role';
 import { CloudinaryUpload } from 'src/utils/image-upload/coudinary-upload';
 import { errorhandler, successHandler } from 'src/utils/response.handler';
 import { Not, Repository } from 'typeorm';
 import { CreateEmployeeDto } from './dto/createEmployee.dto';
+import { UpdateEarningsDto } from './dto/updateEarnings.dto';
 import { UpdateEmployeeDto } from './dto/updateEmployee.dto';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { Employee } from './employees.entity';
@@ -21,6 +22,7 @@ export class EmployeesService {
     private readonly userRepo: Repository<User>,
     private readonly authService: AuthService,
     private readonly emailService: EmailService,
+    private readonly financeService: FinanceService,
   ) {}
 
   async createEmployee(employeeInfo: CreateEmployeeDto) {
@@ -30,7 +32,7 @@ export class EmployeesService {
         email: employeeInfo.email,
         password: employeeInfo.password,
       },
-      role.employee,
+      employeeInfo.role,
     );
 
     const employee = this.employeeRepo.create({
@@ -151,6 +153,37 @@ export class EmployeesService {
     return successHandler('Profile updated', {
       ...updatedEmployee,
       user: updatedUser,
+    });
+  }
+
+  async updateEarnings(id: string, updateEarningInfo: UpdateEarningsDto) {
+    const employee = await this.employeeRepo.findOne({
+      where: { id: id },
+    });
+
+    if (!employee) return errorhandler(404, 'Employee not found');
+
+    console.log(employee, updateEarningInfo);
+    const totalPaid = employee.paid + updateEarningInfo.amount;
+    const updatedEmployee = await this.employeeRepo.update(id, {
+      paid: totalPaid,
+    });
+
+    const salaryRecord = this.financeService.createFinanceRecord({
+      title: updateEarningInfo.title,
+      type: 'EXPENSE',
+      transactionDate: updateEarningInfo.transactionDate,
+      amount: updateEarningInfo.amount,
+      category: 'Employee Salary',
+      medium: updateEarningInfo.medium,
+      trxId: updateEarningInfo.trxId,
+    });
+
+    console.log(salaryRecord);
+    console.log(updatedEmployee);
+
+    return successHandler('Profile updated', {
+      updatedEmployee,
     });
   }
 

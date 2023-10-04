@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { role } from 'src/utils/constants/role';
 
 export class CreateEmployeeDto {
@@ -45,9 +45,11 @@ export class CreateEmployeeDto {
 
   @ApiProperty({ example: '10000' })
   @IsNumber()
-  baseSalary: number;
+  @IsOptional()
+  baseSalary?: number;
 
   @ApiProperty({ example: '10000' })
   @IsNumber()
-  monthlySalary: number;
+  @IsOptional()
+  monthlySalary?: number;
 }

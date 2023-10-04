@@ -164,62 +164,34 @@ export class AuthService {
   }
 
   async socialLogin(req: any, socialLoginDto: SocialLoginDto, res: any) {
-    // try {
-    //   res.header('Access-Control-Allow-Origin', req.headers.origin);
-    //   const userInfo = await this.clientService.findClientByEmail(
-    //     socialLoginDto.email,
-    //   );
-    //   if (!userInfo) {
-    //     const fullname =
-    //       socialLoginDto.firstName + ' ' + socialLoginDto.lastName;
-    //     const result = this.clientRepo.create({
-    //       name: fullname,
-    //       email: socialLoginDto.email,
-    //       role: 'client',
-    //     });
-    //     const user = await this.clientRepo.save(result);
-    //     const tokens = await this.getTokens(user.id, user.email, user.role);
-    //     res.cookie('refreshToken', tokens.refresh_token, {
-    //       expires: new Date(new Date().setDate(new Date().getDate() + 7)),
-    //       sameSite: 'none',
-    //       httpOnly: true,
-    //       secure: true,
-    //     });
-    //     return successHandler('Authenticated!', {
-    //       access_token: tokens.access_token,
-    //       refresh_token: tokens.refresh_token,
-    //       token_type: 'Bearer',
-    //       user_profile: {
-    //         fullname: user.name,
-    //         email: user.email,
-    //         role: user.role,
-    //       },
-    //     });
-    //   } else {
-    //     const tokens = await this.getTokens(
-    //       userInfo.id,
-    //       userInfo.email,
-    //       userInfo.role,
-    //     );
-    //     res.cookie('refreshToken', tokens.refresh_token, {
-    //       expires: new Date(new Date().setDate(new Date().getDate() + 7)),
-    //       sameSite: 'none',
-    //       httpOnly: true,
-    //       secure: true,
-    //     });
-    //     return successHandler('Authenticated!', {
-    //       access_token: tokens.access_token,
-    //       refresh_token: tokens.refresh_token,
-    //       token_type: 'Bearer',
-    //       user_profile: {
-    //         fullname: userInfo.name,
-    //         email: userInfo.email,
-    //         role: userInfo.role,
-    //       },
-    //     });
-    //   }
-    // } catch (error) {
-    //   return errorhandler(400, JSON.stringify(error.message));
-    // }
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    let [userInfo] = await this.usersService.findUserByEmail(
+      socialLoginDto.email,
+    );
+
+    if (!userInfo) {
+      const newUser = this.userRepo.create({
+        ...socialLoginDto,
+        role: role.client,
+      });
+      userInfo = await this.userRepo.save(newUser);
+    }
+
+    const tokens = await this.getTokens(
+      userInfo.id,
+      userInfo.email,
+      userInfo.role,
+    );
+
+    return successHandler('Login successful', {
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      user: {
+        id: userInfo.id,
+        name: userInfo.name,
+        email: userInfo.email,
+        role: userInfo.role,
+      },
+    });
   }
 }

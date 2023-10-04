@@ -15,6 +15,7 @@ import { JwtAuthGuard } from 'src/utils/auth/guards/jwt-auth.guard';
 import { UserRolesGuard } from 'src/utils/auth/guards/roles.guard';
 import { role } from 'src/utils/constants/role';
 import { CreateEmployeeDto } from './dto/createEmployee.dto';
+import { UpdateEarningsDto } from './dto/updateEarnings.dto';
 import { UpdateEmployeeDto } from './dto/updateEmployee.dto';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { EmployeesService } from './employees.service';
@@ -48,7 +49,7 @@ export class EmployeesController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin, role.manager])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Patch('/:id')
   async updateEmployeeById(
@@ -67,6 +68,17 @@ export class EmployeesController {
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
     return await this.employeesService.updateProfile(id, updateProfileDto);
+  }
+
+  @UseGuards(JwtAuthGuard, UserRolesGuard)
+  @SetMetadata('roles', [role.admin])
+  @ApiBearerAuth()
+  @Patch('/salary/:id')
+  async updateEarnings(
+    @Param('id') id: string,
+    @Body() updateEarningsDto: UpdateEarningsDto,
+  ) {
+    return await this.employeesService.updateEarnings(id, updateEarningsDto);
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
