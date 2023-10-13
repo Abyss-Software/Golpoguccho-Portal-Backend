@@ -25,7 +25,7 @@ export class PromoController {
   constructor(private readonly promoService: PromoService) {}
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Post('create-promo')
   async createPromo(@Body() createPromoDto: CreatePromoDto) {
@@ -33,7 +33,7 @@ export class PromoController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Get()
   async getPromoCodes() {
@@ -41,7 +41,7 @@ export class PromoController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Get('/:code')
   async getPromoByCode(@Param('code') code: string) {
@@ -49,7 +49,7 @@ export class PromoController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Patch('/:code')
   async updatePromo(
@@ -60,7 +60,7 @@ export class PromoController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Delete('/:code')
   async deletePromo(@Param('code') code: string) {

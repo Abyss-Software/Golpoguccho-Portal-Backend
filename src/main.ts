@@ -7,6 +7,7 @@ import { HttpExceptionFilter } from './exceptions-filters/http.exception-filter'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
   app.enableCors(); // Enable CORS for all origins
   app.useGlobalPipes(
     new ValidationPipe({
@@ -24,7 +25,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('swagger', app, document);
 
   app.use(json({ limit: '50mb' }));
 

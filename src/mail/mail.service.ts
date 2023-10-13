@@ -143,7 +143,7 @@ export class EmailService {
 
     const receivers = [{ email: emailConfig.email }];
 
-    console.log('emailConfig', emailConfig);
+    console.log('emailConfig', emailConfig, receivers);
     try {
       await tranEmailApi.sendTransacEmail({
         sender,
@@ -209,6 +209,7 @@ export interface INewBookingMailProps {
   bookingTitle: string;
   clientName: string;
   eventCount: number;
+  packages: string;
   contactPrimary: string;
   contactSecondary: string;
   bookingDate: string;

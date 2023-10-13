@@ -27,7 +27,7 @@ export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Post('create-employee')
   async createEmployee(@Body() createEmployeeDto: CreateEmployeeDto) {
@@ -35,7 +35,7 @@ export class EmployeesController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Get('')
   async getAllEmployees() {
@@ -60,7 +60,7 @@ export class EmployeesController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.employee])
+  @SetMetadata('roles', [role.employee, role.moderator])
   @ApiBearerAuth()
   @Patch('/profile/:id')
   async updateProfile(
@@ -71,7 +71,7 @@ export class EmployeesController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Patch('/salary/:id')
   async updateEarnings(
@@ -82,7 +82,7 @@ export class EmployeesController {
   }
 
   @UseGuards(JwtAuthGuard, UserRolesGuard)
-  @SetMetadata('roles', [role.admin])
+  @SetMetadata('roles', [role.admin, role.moderator])
   @ApiBearerAuth()
   @Delete('/:id')
   async deleteEmployeeById(@Param('id') id: string) {

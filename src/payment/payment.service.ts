@@ -16,6 +16,7 @@ export class PaymentService {
       totalPayment: 0,
       advancePayment: 0,
       duePayment: 0,
+      discountAmount: 0,
     };
 
     const packages = await this.packageService.getAllPackages();
@@ -34,6 +35,10 @@ export class PaymentService {
           promoCode: calculatePayment.promoCode,
           totalPayment: payments.totalPayment,
         });
+
+        payments.discountAmount = Math.round(
+          discountedPayments.body.discountAmount,
+        );
 
         payments.totalPayment = Math.round(
           discountedPayments.body.discountedTotalPayment,

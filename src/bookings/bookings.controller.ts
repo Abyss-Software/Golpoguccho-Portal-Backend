@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Request,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateEventDto } from 'src/events/dto/create-event.dto';
@@ -35,8 +36,9 @@ export class BookingsController {
   }
 
   @Get('/:id')
-  async getBookingById(@Param('id') id: string) {
-    return await this.bookingsService.getBookingById(id);
+  async getBookingById(@Param('id') id: string, @Request() request: any) {
+    const token = request.headers.authorization?.split(' ')?.[1];
+    return await this.bookingsService.getBookingById(id, token);
   }
 
   //get bookings by client id
@@ -75,32 +77,4 @@ export class BookingsController {
   ) {
     return await this.bookingsService.giveFeedback(feedbackDto);
   }
-
-  //   @Delete('/:id')
-  //   async deleteBooking(@Param('id') id: string) {
-  //     return await this.bookingsService.deleteBooking(id);
-  //   }
 }
-
-// @Get('events/:id')
-// async getEventsByBookingId(@Param('id') id: string) {
-//   return await this.bookingsService.getEventsByBookingId(id);
-// }
-
-// @Get('events/:id')
-// async getEventById(@Param('id') id: string) {
-//   return await this.bookingsService.getEventById(id);
-// }
-
-// @Patch('events/:id')
-// async updateEvent(
-//   @Param('id') id: string,
-//   @Body() updateEventDto: CreateBookingDto,
-// ) {
-//   return await this.bookingsService.updateEvent(id, updateEventDto);
-// }
-
-// @Delete('events/:id')
-// async deleteEvent(@Param('id') id: string) {
-//   return await this.bookingsService.deleteEvent(id);
-// }

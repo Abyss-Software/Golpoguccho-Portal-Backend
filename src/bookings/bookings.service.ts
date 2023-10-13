@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from 'src/events/events.entity';
 import { EventsService } from 'src/events/events.service';
@@ -9,6 +10,7 @@ import {
   IBookingConfirmMailProps,
   ICompletePaymentMailProps,
 } from 'src/mail/mail.service';
+import { Package } from 'src/packages/packages.entity';
 import { User } from 'src/users/users.entity';
 import { bookingStatus } from 'src/utils/constants/bookingStatus';
 import { errorhandler, successHandler } from 'src/utils/response.handler';
@@ -29,13 +31,15 @@ export class BookingsService {
     private readonly eventRepo: Repository<Event>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    @InjectRepository(Package)
+    private readonly packagesRepo: Repository<Package>,
+    private jwtService: JwtService,
   ) {}
 
   async createBooking(createBookingDto: CreateBookingDto) {
     const clientAccount = await this.userRepo.findOneBy({
       id: createBookingDto.clientId,
     });
-    console.log(createBookingDto);
 
     if (!clientAccount) return errorhandler(404, 'Client account not found');
     console.log('promoCode', createBookingDto.promoCode);
@@ -62,10 +66,15 @@ export class BookingsService {
       where: [{ role: 'ADMIN' }, { role: 'MODERATOR' }],
     });
 
+    const packages = await this.packagesRepo.find();
+
     const emailConfig = {
       bookingTitle: booking.bookingTitle,
       clientName: booking.fullName,
       eventCount: createBookingDto.events.length,
+      packages: createBookingDto.events
+        .map((event) => packages.find((p) => p.id === event.packageId).title)
+        .join(', '),
       contactPrimary: booking.contactPrimary,
       contactSecondary: booking.contactSecondary,
       bookingDate: new Date().toDateString(),
@@ -102,16 +111,20 @@ export class BookingsService {
     return successHandler('All Bookings', bookings);
   }
 
-  async getBookingById(bookingId: string) {
-    console.log(bookingId);
+  async getBookingById(bookingId: string, token: string) {
     const booking = await this.bookingRepo.findOne({
       where: { id: bookingId },
       relations: ['events', 'events.category', 'events.package'],
     });
 
-    console.log(booking);
-
     if (!booking) return errorhandler(404, 'Booking not found');
+
+    const decodedJwtRefreshToken: any = this.jwtService.decode(token);
+    console.log(decodedJwtRefreshToken);
+
+    if (decodedJwtRefreshToken.role == 'CLIENT' && !booking.duePaymentDate) {
+      return { ...booking, images: null };
+    }
 
     return booking;
   }
@@ -170,13 +183,12 @@ export class BookingsService {
       where: { id: statusUpdateDto.bookingId },
       relations: [
         'events',
+        'events.package',
         'events.assignedEmployees',
         'events.assignedEmployees.employee',
         'events.assignedEmployees.employee.user',
       ],
     });
-
-    console.log(booking);
 
     if (!booking) return errorhandler(404, 'Booking not found');
 
@@ -195,6 +207,7 @@ export class BookingsService {
         trxId: booking.advanceTransactionId,
       });
 
+      console.log(booking.events);
       const emailConfig: IBookingConfirmMailProps = {
         email: booking.email,
         bookingTitle: booking.bookingTitle,

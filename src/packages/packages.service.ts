@@ -33,11 +33,14 @@ export class PackagesService {
       createCategoryDto.title,
     );
 
+    console.log(imageUpload);
     const category = this.categoryRepo.create({
       ...createCategoryDto,
       image: imageUpload.secure_url,
       status: status.active,
     });
+
+    console.log(category);
 
     await this.categoryRepo.save(category);
     return successHandler('Category created successfully', category);
@@ -101,7 +104,14 @@ export class PackagesService {
     const categoryData = await this.categoryRepo.findOneBy({ id: id });
     if (!categoryData) return errorhandler(404, 'Category not found');
 
-    Object.assign(categoryData, attributes);
+    const imageUpload = await CloudinaryUpload(
+      attributes.image,
+      'categories',
+      attributes.title,
+    );
+
+    Object.assign(categoryData, attributes, { image: imageUpload.secure_url });
+    console.log(categoryData);
     await this.categoryRepo.save(categoryData);
     return successHandler('Category updated successfully', categoryData);
   }
@@ -110,7 +120,14 @@ export class PackagesService {
     const packageData = await this.packageRepo.findOneBy({ id: id });
     if (!packageData) return errorhandler(404, 'Package not found');
 
-    Object.assign(packageData, attributes);
+    const imageUpload = await CloudinaryUpload(
+      attributes.image,
+      'packages',
+      attributes.title,
+    );
+
+    Object.assign(packageData, attributes, { image: imageUpload.secure_url });
+    console.log(packageData);
     await this.packageRepo.save(packageData);
     return successHandler('Package updated successfully', packageData);
   }
