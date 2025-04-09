@@ -20,11 +20,18 @@ import { FinanceModule } from './finance/finance.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL,
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      autoLoadEntities: true, // Load entity classes automatically from the "entities" array.
+      autoLoadEntities: true,
       synchronize: true,
-    }),
+      ssl: {
+        ca: process.env.DB_CA,
+        rejectUnauthorized: true,
+      },}),
     AuthModule,
     UsersModule,
     PackagesModule,
